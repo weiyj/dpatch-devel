@@ -1,0 +1,16 @@
+{
+    "name": "lib.socket.io",
+    "version": "0.0.1",
+    "main": "plugin-socket.io.js",
+    "private": true,
+
+    "dependencies": {
+    },
+
+    "plugins": {
+        "socket.io": {
+            "path": "www/",
+            "mount": "lib/"
+        }
+    }
+}

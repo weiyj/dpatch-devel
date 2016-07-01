@@ -1,0 +1,29 @@
+{
+    "name": "requirejs",
+    "version": "2.1.16",
+    "description": "RequireJS is a JavaScript file and module loader.",
+    
+    "private": true,
+
+    "plugins": {
+        "requirejs": {
+            "path": "www/",
+            "mount": "lib/",
+            "rjs": {
+            	"text": "/lib/require.text"
+            }
+        }
+    },
+
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jrburke/requirejs.git"
+    },
+
+    "dependencies": {
+    },
+
+    "licenses": [
+        "MIT", "BSD"
+    ]
+}

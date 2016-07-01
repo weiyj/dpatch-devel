@@ -1,0 +1,29 @@
+{
+    "name": "lib.ace",
+    "version": "1.1.8",
+    "main": "plugin-ace.js",
+    "private": true,
+
+    "plugins": {
+        "ace": {
+            "path": "www/ace/lib/",
+            "mount": "lib/"
+        },
+        "ace_tree": {
+            "path": "www/ace_tree/lib/",
+            "mount": "lib/"
+        }
+    },
+
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jrburke/requirejs.git"
+    },
+
+    "dependencies": {
+    },
+
+    "licenses": [
+        "MIT", "BSD"
+    ]
+}

@@ -1,0 +1,25 @@
+{
+    "name": "lib.firmin",
+    "version": "1.0.0",
+    "description": "Firmin is a JavaScript animation library that uses CSS transforms and transitions to create smooth, hardware-accelerated animations.",
+    "main": "plugin-firmin.js",
+    "private": true,
+
+    "dependencies": {
+    },
+
+    "plugins": {
+        "firmin": {
+            "path": "www/",
+            "mount": "lib/",
+            "rjs": {
+                "firmin": "/lib/firmin-1.0.0-min"
+            }
+        }
+    },
+
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/beastaugh/firmin.git"
+    }
+}

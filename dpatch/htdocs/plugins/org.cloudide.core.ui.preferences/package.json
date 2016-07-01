@@ -1,0 +1,24 @@
+{
+    "name": "org.cloudide.core.apf",
+    "description": "CAF Core Plguin",
+    "version": "3.1.2323",
+    "author": "Ajax.org B.V. <info@ajax.org>",
+    "private": true,
+
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/c9/core.git"
+    },
+
+    "plugins": {
+        "preferences": {},
+        "preferencepanel": {},
+        "general": {},
+        "project": {}
+    },
+
+    "categories": [
+        "core"
+    ],
+    "license": []
+}

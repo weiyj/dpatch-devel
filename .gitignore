@@ -1,0 +1,9 @@
+*.log
+*.pot
+*.pyc
+local_settings.py
+.project
+.pydevproject
+db.sqlite3
+.COMMIT_LATEST
+.RELEASE

@@ -1,0 +1,15 @@
+{
+    "name": "lib.utils",
+    "version": "0.0.1",
+    "private": true,
+
+    "dependencies": {
+    },
+
+    "plugins": {
+        "utils": {
+            "path": "www/",
+            "mount": "lib/"
+        }
+    }
+}

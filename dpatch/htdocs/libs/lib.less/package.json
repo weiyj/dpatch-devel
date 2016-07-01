@@ -1,0 +1,19 @@
+{
+    "name": "lib.less",
+    "version": "0.0.1",
+    "main": "plugin-less.js",
+    "private": true,
+
+    "dependencies": {
+    },
+
+    "plugins": {
+        "less": {
+            "path": "www/",
+            "mount": "lib/",
+            "rjs": {
+                "less": "/lib/less1.5"
+            }
+        }
+    }
+}

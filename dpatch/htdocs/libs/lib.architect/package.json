@@ -1,0 +1,19 @@
+{
+    "name": "architect",
+    "version": "0.0.1",
+    "private": true,
+
+    "plugins": {
+        "architect": {
+            "path": "www/",
+            "mount": "lib/"
+        }
+    },
+
+    "dependencies": {
+    },
+
+    "licenses": [
+        "MIT", "BSD"
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "name": "events",
+    "version": "0.0.1",
+    "private": true,
+
+    "plugins": {
+        "events": {
+            "path": "www/",
+            "mount": "lib/"
+        }
+    },
+
+    "dependencies": {
+    },
+
+    "licenses": [
+        "MIT", "BSD"
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "name": "application",
+    "version": "0.0.1",
+    "private": true,
+
+    "plugins": {
+        "app": {
+            "path": "www/",
+            "mount": "lib/"
+        }
+    },
+
+    "dependencies": {
+    },
+
+    "licenses": [
+        "MIT", "BSD"
+    ]
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>                                          
+<service>                                                                       
+  <!-- This is a firewalld service definition for dpatch -->                   
+  <short>dpatch</short>                                                        
+  <description>dpatch lets you automate generate linux kernel patch.</description>                                                                        
+  <port protocol="tcp" port="8888"/>                                            
+</service>                                                                      

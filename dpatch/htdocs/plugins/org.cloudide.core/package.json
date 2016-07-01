@@ -1,0 +1,32 @@
+{
+    "name": "org.cloudide.core",
+    "description": "CloudIDE Core Plguin",
+    "version": "0.1.0",
+    "author": "Wei Yongjun <weiyj.lk@gmail.com>",
+    "private": true,
+
+    "contributors": [{
+        "name": "Wei Yongjun",
+        "email": "weiyj.lk@gmail.com"
+    }],
+
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/c9/newclient.git"
+    },
+
+    "plugins": {
+        "plugin": {},
+        "utils": {},
+        "http": {},
+        "api": {
+            "apiUrl": "/api"
+        },
+        "app": {}
+    },
+
+    "categories": [
+        "core"
+    ],
+    "license": []
+}
