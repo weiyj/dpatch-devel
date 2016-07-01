@@ -19,7 +19,15 @@
 # along with DailyPatch; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.shortcuts import render
+from django.conf import settings
+from django.shortcuts import render, redirect
+
+def index(request):
+    if not request.user.is_authenticated():
+        return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+    return render(request, 'editor.html')
 
 def editor_index(request):
+    if not request.user.is_authenticated():
+        return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
     return render(request, 'editor.html')

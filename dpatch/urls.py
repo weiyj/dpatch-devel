@@ -35,6 +35,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 
 from dpatch.architect.sites import site
 from . import views
@@ -45,6 +46,16 @@ urlpatterns = [
 
     url(r'^', include(site.urls)),
     url(r'^editor/$', views.editor_index),
+
+    url(r'^$', views.index),
+    url(r'^index\.html$', views.index),
+
+    url(r'^user/login/$', auth_views.login,
+        {'template_name': 'login.html'},
+        name = 'auth_login'),
+    url(r'^user/logout/$', auth_views.logout,
+        {'next_page': '/'},
+        name = 'auth_logout'),
 
     url(r'^', include("dpatch.setting.urls")),
     url(r'^api/', include("dpatch.repository.urls")),

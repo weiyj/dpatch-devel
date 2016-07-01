@@ -124,6 +124,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    os.path.join(ROOT_DIR, 'htdocs/static/'),
+]
+
+LOGIN_URL = '/user/login/'
+
+LOGIN_REDIRECT_URL = '/'
+
 try:
     from local_settings import *
 except:

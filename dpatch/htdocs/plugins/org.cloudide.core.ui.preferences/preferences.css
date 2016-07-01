@@ -354,7 +354,7 @@
 }
 
 .prefpanel h1:after {
-    .image-2x("/static/plugins/c9.ide.layout.classic/images/@{c9-repeat-x}", 32px, 1500px, 'repeat-x');
+    .image-2x("/scripts/lib/plugins/org.cloudide.core.ui.layout.classic/images/@{c9-repeat-x}", 32px, 1500px, 'repeat-x');
     background-position: 50% -364px;
     content: "";
     position: absolute;
