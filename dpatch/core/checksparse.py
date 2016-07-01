@@ -32,6 +32,7 @@ class CheckSparseEngine(PatchEngine):
         self._diff = []
         self._includes = []
         self._recheck = False
+        self._error = False
 
     def _execute_shell(self, args):
         if isinstance(args, basestring):
@@ -52,6 +53,9 @@ class CheckSparseEngine(PatchEngine):
         return 'check sparse'
 
     def has_error(self):
+        if self._error is True:
+            return True
+
         for line in self._diff:
             if re.search('\s+Error\s+\d', line):
                 return True
@@ -410,8 +414,10 @@ class CheckSparseEngine(PatchEngine):
     def _is_buildable(self):
         #_objname = re.sub("\.c$", ".o", self._fname)
         if not os.path.exists(self._build):
+            self._error = True
             return False
         if not os.path.exists(os.path.join(self._build, 'vmlinux')):
+            self._error = True
             return False
         #if not os.path.exists(os.path.join(self._build, _objname)):
         #    return False
