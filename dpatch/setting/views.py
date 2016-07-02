@@ -30,7 +30,7 @@ class SystemSettingView(APIView):
     def get(self, request, name):
         user = self.request.user
         try:
-            setting = SystemSetting.objects.get(user=user, name=name)
+            setting = SystemSetting.objects.get(user=user, name=name, type=SystemSetting.TYPE_SETTINGS)
         except:
             return Response({}, status=status.HTTP_200_OK)
 
@@ -44,9 +44,9 @@ class SystemSettingView(APIView):
         content = request.stream.read()
         
         try:
-            setting = SystemSetting.objects.get(user=user, name=name)
+            setting = SystemSetting.objects.get(user=user, name=name, type=SystemSetting.TYPE_SETTINGS)
         except:
-            setting = SystemSetting(user=user, name=name)
+            setting = SystemSetting(user=user, name=name, type=SystemSetting.TYPE_SETTINGS)
             
         setting.content = content
         setting.save()
@@ -56,9 +56,47 @@ class SystemSettingView(APIView):
     def delete(self, request, name):
         user = self.request.user
         try:
-            setting = SystemSetting.objects.get(user=user, name=name)
+            setting = SystemSetting.objects.get(user=user, name=name, type=SystemSetting.TYPE_SETTINGS)
         except:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         setting.delete()
         return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+class SystemFileCacheView(APIView):
+    def get(self, request, name):
+        user = self.request.user
+        try:
+            fcache = SystemSetting.objects.get(user=user, name=name, type=SystemSetting.TYPE_FILE)
+        except:
+            return Response({"value": ""}, status=status.HTTP_200_OK)
+
+        try:
+            return Response({'value': fcache.content}, status=status.HTTP_200_OK)
+        except:
+            return Response(fcache.content, status=status.HTTP_200_OK)
+
+    def put(self, request, name):
+        user = self.request.user
+        content = request.stream.read()
+
+        try:
+            fcache = SystemSetting.objects.get(user=user, name=name, type=SystemSetting.TYPE_FILE)
+        except:
+            fcache = SystemSetting(user=user, name=name, type=SystemSetting.TYPE_FILE)
+
+        fcache.content = content
+        fcache.save()
+
+        return Response(fcache.content, status=status.HTTP_200_OK)
+
+    def delete(self, request, name):
+        user = self.request.user
+        try:
+            fcache = SystemSetting.objects.get(user=user, name=name, type=SystemSetting.TYPE_FILE)
+        except:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+        fcache.delete()
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
+

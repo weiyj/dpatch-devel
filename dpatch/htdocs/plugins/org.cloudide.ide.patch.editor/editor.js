@@ -23,6 +23,7 @@ define(function(require, exports, module) {
         var handle = editors.register("patcheditor", "PatchEditor", PatchEditor, []);
         var emit = handle.getEmitter();
         var markup = require("text!./editor.html");
+        var apiPrefix = options.apiPrefix || "";
 
         var loaded = false;
         function load() {
@@ -350,7 +351,7 @@ define(function(require, exports, module) {
                         tabs.open({
                             patchid: item.id,
                             tabtype: 'file',
-                            path: item.file,
+                            path: apiPrefix + item.file,
                             nofs: 1,
                             active: true,
                             value: data.content

@@ -26,9 +26,23 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 class SystemSetting(models.Model):
+    TYPE_SETTINGS = 0
+    TYPE_FILE = 1
+
+    SETTING_TYPE_CHOICES = (
+        (TYPE_SETTINGS, 'setting'),
+        (TYPE_FILE, 'file'),
+    )
+
     id = models.AutoField(
         primary_key = True,
         verbose_name=_('ID'),
+    )
+
+    type = models.IntegerField(
+        choices = SETTING_TYPE_CHOICES,
+        default = TYPE_SETTINGS,
+        verbose_name = _('Type')
     )
 
     user = models.ForeignKey(

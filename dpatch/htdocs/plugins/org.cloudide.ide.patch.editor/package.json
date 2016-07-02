@@ -11,7 +11,9 @@
     },
 
     "plugins": {
-        "editor": {}
+        "editor": {
+            "apiPrefix": "api/file/"
+        }
     },
 
     "categories": [

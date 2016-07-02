@@ -50,6 +50,7 @@ class PatchTypeSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'engine',
+            'source',
             'title',
             'description',
             'comment',

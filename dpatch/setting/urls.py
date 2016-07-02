@@ -20,8 +20,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.conf.urls import url
-from .views import SystemSettingView
+from .views import SystemSettingView, SystemFileCacheView
 
 urlpatterns = [
     url(r'^settings/(?P<name>.+)$', SystemSettingView.as_view()),
+    url(r'^api/file/(?P<name>.+)$', SystemFileCacheView.as_view()),
 ]
