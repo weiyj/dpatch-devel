@@ -22,6 +22,7 @@
 import os
 import tarfile
 import tempfile
+import json
 
 from rest_framework import status, viewsets, mixins
 from rest_framework.response import Response
@@ -303,23 +304,22 @@ class CoccinelleFileExportViewSet(mixins.ListModelMixin,
         return PatchType.objects.filter(user=user, engine__id=ENGINE_COCCINELLE)
 
     def _archive_add(self, archive, ptype):
-        if ptype.source == PatchType.SOURCE_KERNEL:
-            content = "/// TITLE: " + ptype.title + "\n"
-            for line in ptype.description.split('\n'):
-                content = content + "/// DESC: " + line + "\n"
-            content = content + ptype.content
-        else:
-            content = ptype.content
+        content = ptype.content
 
         tmpfname = tempfile.mktemp(dir = ptype.tempdir())
         with open(tmpfname, "w") as fp:
                 fp.write(content)
 
-        fname = ptype.fullpath()
-        dname = os.path.basename(os.path.dirname(os.path.dirname(fname)))
-        rpath = os.path.join(dname, os.path.basename(fname))
+        archive.add(tmpfname, arcname = "%s.json" % ptype.name)
 
-        archive.add(tmpfname, arcname = rpath)
+        os.unlink(tmpfname)
+
+    def _archive_add_content(self, archive, content):
+        tmpfname = tempfile.mktemp()
+        with open(tmpfname, "w") as fp:
+                fp.write(content)
+
+        archive.add(tmpfname, arcname = "coccinelle.json")
 
         os.unlink(tmpfname)
 
@@ -328,8 +328,9 @@ class CoccinelleFileExportViewSet(mixins.ListModelMixin,
         response['Content-Disposition'] = 'attachment; filename=coccinelle-scripts-all-%s.tar.gz' % strftime("%Y%m%d%H%M%S", gmtime())
         archive = tarfile.open(fileobj=response, mode='w:gz')
 
-        for ptype in self.get_queryset():
-            self._archive_add(archive, ptype)
+        serializer = CoccinelleTypeSerializer(self.get_queryset(), many=True)
+
+        self._archive_add_content(archive, json.dumps(serializer.data, indent=4))
 
         archive.close()
 

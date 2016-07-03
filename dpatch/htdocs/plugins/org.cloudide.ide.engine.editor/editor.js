@@ -100,6 +100,11 @@ define(function(require, exports, module) {
                             caption: "Edit",
                             onclick: editPatchType
                         }),
+                        btnTypeBugFix = new ui.button({
+                            skin: "btn-default-css3",
+                            caption: "Bug Fix",
+                            onclick: changePatchTypeBugfix
+                        }),
                         btnTypeStatus = new ui.button({
                             skin: "btn-default-css3",
                             caption: "Enable",
@@ -127,17 +132,17 @@ define(function(require, exports, module) {
                     },{
                         caption: "NAME",
                         value: "name",
-                        width: "10%"
+                        width: "15%"
                     },{
                         caption: "TITLE",
                         value: "title",
-                        width: "40%"
+                        width: "35%"
                     },{
                         caption: "BUGFIX",
                         value: "bugfix_txt",
                         width: "10%"
                     },{
-                        caption: "REPORT",
+                        caption: "REPORT ONLY",
                         value: "reportonly_txt",
                         width: "10%"
                     },{
@@ -178,11 +183,13 @@ define(function(require, exports, module) {
                     	btnTypeImport.enable();
                     	btnTypeExport.enable();
                     	btnTypeEdit.enable();
+                    	btnTypeBugFix.enable();
                     } else {
                     	btnTypeNew.disable();
                     	btnTypeImport.disable();
                     	btnTypeExport.disable();
                     	btnTypeEdit.disable();
+                    	btnTypeBugFix.disable();
                     }
 
                     if (item.status == true) {
@@ -191,6 +198,12 @@ define(function(require, exports, module) {
                     } else {
                     	btnTypeStatus.setCaption("Enable");
                     	btnTypeStatus.setAttribute("class", "btn-green");
+                    }
+
+                    if (item.bugfix == true) {
+                    	btnTypeBugFix.setCaption("Cleanup");
+                    } else {
+                    	btnTypeBugFix.setCaption("Bug Fix");
                     }
 
                     emit("changeSelection", { node : item });
@@ -259,6 +272,23 @@ define(function(require, exports, module) {
                 	updateCocciTypeList(doc);
             }
 
+            function changePatchTypeBugfix() {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return;
+
+                engine.engines.put('types/' + item.id + '/', {
+                    "body": JSON.stringify({'id': item.id, 'bugfix': !item.bugfix})
+                }, function (err, data, res) {
+                    if (!err) {
+                        updatePatchTypeList(currentDocument);
+                    } else {
+                        showError("Failed to move patch type to bugfix");
+                    }
+                });
+            }
+
             function changePatchTypeStatus() {
                 var item = datagrid.selection.getCursor();
 
@@ -299,7 +329,7 @@ define(function(require, exports, module) {
                         	"body": JSON.stringify({'id': item.id})
                         }, function (err, data, res) {
                             if (!err) {
-                                updatePatchList(currentDocument);
+                            	updatePatchTypeList(currentDocument);
                             } else {
                                 showError("Failed to delete coccinelle script");
                             }

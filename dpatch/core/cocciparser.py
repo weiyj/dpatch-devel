@@ -79,7 +79,7 @@ class CocciParser(object):
             desc = desc[:-1]
 
         self._desc = '\n'.join(desc)
-        self._content = ''.join(content)
+        self._content = '\n'.join(self._lines)
 
     def get_title(self):
         return self._title

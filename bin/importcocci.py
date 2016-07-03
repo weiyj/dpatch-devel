@@ -217,7 +217,45 @@ def import_cocci_kernel_report(user, fname, lines, kcocci):
 
     return True
 
-def import_cocci_file(user, target, fname, lines):
+def import_cocci_from_json(user, content):
+    try:
+        engine = PatchEngine.objects.get(name='checkcoccinelle')
+    except:
+        ERROR("checkcoccinelle is not supported!!!")
+        sys.exit(0)
+
+    for ptype in json.loads(content):
+        if PatchType.objects.filter(filename = ptype['filename'], user = user, engine=engine).count() != 0:
+            INFO('skip %s, already exists' % ptype['filename'])
+            continue
+
+        etype = PatchType(engine = engine, user = user, name = ptype['name'],
+                      filename = ptype['filename'], title = ptype['title'],
+                      source = ptype['source'], comment = ptype['comment'],
+                      description = ptype['description'], content = ptype['content'],
+                      options = ptype['options'], excludes = ptype['excludes'],
+                      reportonly = ptype['reportonly'], flags = ptype['flags'],
+                      fixed = ptype['fixed'], bugfix = ptype['bugfix'],
+                      includes = ptype['includes'], setting = ptype['setting'],
+                      status = ptype['status'])
+
+        try:
+            path = os.path.dirname(etype.fullpath())
+            if not os.path.exists(path):
+                os.makedirs(path)
+            with open(etype.fullpath(), "w") as cocci:
+                cocci.write(ptype['content'])
+        except:
+            ERROR("failed to write file %s" % etype.fullpath())
+            return False
+
+        etype.save()
+
+    return True
+
+def import_cocci_file(user, target, fname, content):
+    lines = content.split('\n')
+
     if len(lines) < 5:
         return False
 
@@ -242,6 +280,8 @@ def import_cocci_file(user, target, fname, lines):
             return import_cocci_kernel_patch(user, fname, lines, kcocci)
         elif target == 'kreport':
             return import_cocci_kernel_report(user, fname, lines, kcocci)
+    elif target in ['json']:
+        return import_cocci_from_json(user, content)
     else:
         return False
 
@@ -250,7 +290,7 @@ def main(args):
         usage(args[0])
         return 0
 
-    if not args[2] in ['patch', 'report', 'kpatch', 'kreport']:
+    if not args[2] in ['patch', 'report', 'kpatch', 'kreport', 'json']:
         usage(args[0])
         return 0
 
@@ -267,23 +307,23 @@ def main(args):
         if tarfile.is_tarfile(fname):
             tar = tarfile.open(fname, "r:gz")
             for tarinfo in tar:
-                if os.path.splitext(tarinfo.name)[1] != ".cocci":
+                if not os.path.splitext(tarinfo.name)[1] in [".cocci", ".json"]:
                     INFO("import fail: file %s is not a *.cocci file" % tarinfo.name)
                     continue
                 if not tarinfo.isreg():
                     continue
                 print tarinfo.name
                 fp = tar.extractfile(tarinfo)
-                if import_cocci_file(suser, target, tarinfo.name, fp.readlines()):
+                if import_cocci_file(suser, target, tarinfo.name, fp.read()):
                     INFO('import succeed: %s' % tarinfo.name)
                 else:
                     INFO('import fail: %s is not a cocci file' % tarinfo.name)
         else:
-            if os.path.splitext(fname)[1] != ".cocci":
+            if not os.path.splitext(fname)[1] in [".cocci", ".json"]:
                 INFO("import fail: file %s is not a *.cocci file" % fname)
                 continue
             fp = open(fname, 'r')
-            if import_cocci_file(suser, target, os.path.basename(fname), fp.readlines()):
+            if import_cocci_file(suser, target, os.path.basename(fname), fp.read()):
                 INFO('import succeed: %s' % fname)
             else:
                 INFO('import fail: %s is not a cocci file' % fname)

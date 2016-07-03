@@ -72,9 +72,9 @@ define(function(require, exports, module) {
                             clearbutton: true,
                             focusselect: true,
                             height: 27,
-                            width: 480,
+                            width: 240,
                             singleline: true,
-                            "initial-message": "Search patch"
+                            "initial-message": ""
                         }),
                         new ui.filler({}),
                         btnPatchNew = new ui.button({
