@@ -24,6 +24,7 @@ import sys
 import time
 import django
 import re
+import datetime
 
 django.setup()
 
@@ -42,7 +43,7 @@ from dpatch.core.checksparse import CheckSparseEngine
 from dpatch.core.checkcoccinelle import CheckCocciPatchEngine
 from dpatch.core.checkcoccinelle import CheckCocciReportEngine
 from dpatch.core.patchformater import PatchFormater
-from dpatch.core.utils import execute_shell, execute_shell_unicode
+from dpatch.core.utils import execute_shell, execute_shell_unicode, find_remove_lines
 from dpatch.core.utils import is_c_file, is_white_black_list, execute_shell_full
 
 def INFO(msg):
@@ -54,6 +55,21 @@ def ERROR(msg):
 def update_tag_total(tag):
     tag.total = F('total') + 1
     tag.save()
+
+def is_change_obsoleted(repodir, fname, diff, days = 180):
+    dates = []
+    try:
+        for line in find_remove_lines(diff):
+            dates = execute_shell("cd %s; git log -n 1 -S '%s' --pretty=format:%%ci%%n %s" % (repodir, line, fname))
+            if len(dates) == 0:
+                continue
+            dt = datetime.datetime.strptime(' '.join(dates[0].split(' ')[:-1]), "%Y-%m-%d %H:%M:%S")
+            delta = datetime.datetime.now() - dt
+            if delta.days < days:
+                return False
+        return True
+    except:
+        return True
 
 def check_patch(task, detector):
     patchs = Patch.objects.filter(file = task.filename, type = task.type)
@@ -114,6 +130,12 @@ def check_patch(task, detector):
     if should_patch == True and len(rpatchs) == 0:
         detector.info("detect new patch")
         text = detector.get_patch()
+
+        if task.type.flags & PatchType.TYPE_FLAG_SKIP_OBSOLETE:
+            if is_change_obsoleted(task.tag.repo.dirname(), task.filename, text):
+                INFO("patch is obsoleted")
+                return False
+
         patch = Patch(tag = task.tag, file = task.filename, type = task.type,
                       status = Patch.PATCH_STATUS_PATCH, diff = text)
         user = patch.username()
@@ -199,6 +221,12 @@ def check_report(task, detector):
         return False
 
     text = detector.get_report()
+
+    if task.type.flags & PatchType.TYPE_FLAG_SKIP_OBSOLETE:
+        if is_change_obsoleted(task.tag.repo.dirname(), task.filename, text):
+            INFO("report is obsoleted")
+            return False
+
     report = Patch(tag = task.tag, file = task.filename, type = task.type,
                     status = Patch.PATCH_STATUS_NEW, report = '\n'.join(text))
     report.title = task.type.title

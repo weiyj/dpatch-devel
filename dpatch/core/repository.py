@@ -21,8 +21,9 @@
 
 import os
 import re
+import datetime
 
-from .utils import execute_shell
+from .utils import execute_shell, find_remove_lines
 
 class GitRepository(object):
     def __init__(self, name, path, url, commit, stable):
@@ -146,3 +147,18 @@ class GitRepository(object):
             if len(scommit) == 0 or scommit is None:
                 scommit = '1da177e4c3f41524e886b7f1b8a0c1fc7321cac2'
             return self.diff(scommit, ecommit)
+
+    def is_change_obsoleted(self, fname, diff, days = 180):
+        dates = []
+        try:
+            for line in find_remove_lines(diff):
+                dates = execute_shell("cd %s; git log -n 1 -S '%s' --pretty=format:%%ci%%n %s" % (self._path, line, fname))
+                if len(dates) == 0:
+                    continue
+                dt = datetime.datetime.strptime(' '.join(dates[0].split(' ')[:-1]), "%Y-%m-%d %H:%M:%S")
+                delta = datetime.datetime.now() - dt
+                if delta.days < days:
+                    return False
+            return True
+        except:
+            return True

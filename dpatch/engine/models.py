@@ -64,6 +64,7 @@ class PatchEngine(models.Model):
 class PatchType(models.Model):
     TYPE_FLAG_DEV_ONLY = 1
     TYPE_FLAG_BUILD_SPARSE = 2
+    TYPE_FLAG_SKIP_OBSOLETE = 4
 
     SOURCE_DEFINE = 0
     SOURCE_KERNEL = 1
