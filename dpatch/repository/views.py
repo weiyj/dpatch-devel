@@ -95,7 +95,7 @@ class RepositoryTagViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return RepositoryTag.objects.filter(repo__user=user)
+        return RepositoryTag.objects.filter(repo__user=user).order_by('-id')
 
     def list(self, request):
         queryset = self.get_queryset()
