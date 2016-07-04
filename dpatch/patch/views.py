@@ -537,7 +537,7 @@ class PatchSendWizardView(APIView):
 
         to, emails = self._parser_email(patch.emails)
         to = to.replace('"', '')
-        cmd = '/usr/bin/git send-email --quiet --no-thread '
+        cmd = '/usr/bin/git send-email --no-thread '
         cmd += '--confirm=never --to="%s" ' % to
         cmd += '--smtp-server %s ' % smtp.server
         cmd += '--smtp-server-port %s ' % smtp.port
@@ -560,6 +560,13 @@ class PatchSendWizardView(APIView):
                 'code': 0,
                 'detail': ctx
             }, status=status.HTTP_400_BAD_REQUEST)
+
+        for line in drun.split('\n'):
+            if line.find("Message-Id: ") == 0:
+                line = line.replace("Message-Id: ", "")
+                line = line.lstrip('<')
+                patch.msgid = line.rstrip('>')
+                break
 
         patch.status = Patch.PATCH_STATUS_MAILED
         patch.save()
