@@ -131,7 +131,8 @@ def check_patch(task, detector):
         detector.info("detect new patch")
         text = detector.get_patch()
 
-        if task.type.flags & PatchType.TYPE_FLAG_SKIP_OBSOLETE:
+        # NOTE: disable cleanup pattern which has no changed half year
+        if task.type.bugfix is False or task.type.flags & PatchType.TYPE_FLAG_SKIP_OBSOLETE:
             if is_change_obsoleted(task.tag.repo.dirname(), task.filename, text):
                 INFO("patch is obsoleted")
                 return False
