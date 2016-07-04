@@ -140,13 +140,13 @@ class PatchContentViewSet(mixins.ListModelMixin,
     queryset = Patch.objects.all()
     serializer_class = PatchContentSerializer
 
-    def _register_module(self, file, name, newname):
+    def _register_module(self, repo, file, name, newname):
         if len(newname) == 0 or name == newname:
             return False
 
-        mlist = FileModule.objects.filter(file = file)
+        mlist = FileModule.objects.filter(repo = repo, file = file)
         if len(mlist) == 0:
-            mname = FileModule(file = file, name = newname)
+            mname = FileModule(repo = repo, file = file, name = newname)
             mname.save()
         else:
             for mname in mlist:
@@ -211,7 +211,7 @@ class PatchContentViewSet(mixins.ListModelMixin,
             }, status=status.HTTP_400_BAD_REQUEST)
 
         # upgrade file module name if possible
-        self._register_module(patch.file, patch.module, parser.get_module_name())
+        self._register_module(patch.tag.repo, patch.file, patch.module, parser.get_module_name())
     
         request.data['title'] = parser.get_title_full()
         request.data['description'] = parser.get_description()
