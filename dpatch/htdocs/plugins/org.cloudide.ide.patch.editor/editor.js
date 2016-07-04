@@ -1,6 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = ["layout", "Editor", "editors", "ui", "patch", "tabManager",
-        "dialog.error", "dialog.confirm", "dialog.patchinfo", "utils", "sendwizard"];
+        "dialog.error", "dialog.confirm", "dialog.patchinfo", "utils", "sendwizard",
+        "menus", "commands"];
     main.provides = ["patch.editor"];
     return main;
 
@@ -10,6 +11,8 @@ define(function(require, exports, module) {
         var editors = imports.editors;
         var ui = imports.ui;
         var tabs = imports.tabManager;
+        var menus = imports.menus;
+        var commands = imports.commands;
         var patch = imports.patch;
         var utils = imports.utils;
         var showError = imports["dialog.error"].show;
@@ -25,12 +28,85 @@ define(function(require, exports, module) {
         var markup = require("text!./editor.html");
         var apiPrefix = options.apiPrefix || "";
 
+        function setMenus() {
+            menus.addItemByPath("Edit/~", new ui.divider(), 2000, handle);
+            menus.addItemByPath("Edit/Patch/", null, 2100, handle);
+            menus.addItemByPath("Edit/Patch/Rebuild Patch", new ui.item({
+                command: "patchSkipBuild"}), 100, handle);
+            menus.addItemByPath("Edit/Patch/Skip Build", new ui.item({
+                command: "patchSkipBuild"}), 200, handle);
+            menus.addItemByPath("Edit/Patch/~", new ui.divider(), 300, handle);
+            menus.addItemByPath("Edit/Patch/Move to Renew Status", new ui.item({
+                command: "patchSetStatusRenew"}), 400, handle);
+            menus.addItemByPath("Edit/Patch/Move to Ready Status", new ui.item({
+                command: "patchSetStatusPending"}), 500, handle);
+            menus.addItemByPath("Edit/Patch/Move to Mailed Status", new ui.item({
+                command: "patchSetStatusMailed"}), 600, handle);
+        }
+
+        function setCommands() {
+            function checkAvailable(editor, action) {
+                if (editor && tabs.focussedTab && tabs.focussedTab.editorType == "patcheditor")
+                    return tabs.focussedTab.editor.checkAvailable(action);
+                return false;
+            }
+
+            commands.addCommand({
+                name: "patchRebuild",
+                isAvailable: function(editor) { return checkAvailable(editor, "rebuild"); },
+                exec: function() {
+                    tabs.focussedTab.editor.rebuildSelectedPatch();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSkipBuild",
+                isAvailable: function(editor){ return checkAvailable(editor, "skipbuild"); },
+                exec: function() {
+                    tabs.focussedTab.editor.skipBuildSelectedPatch();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSetStatusRenew",
+                isAvailable: function(editor){ return checkAvailable(editor, "renew"); },
+                exec: function() {
+                    tabs.focussedTab.editor.movePatchToRenew();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSetStatusPending",
+                isAvailable: function(editor){ return checkAvailable(editor, "pending"); },
+                exec: function() {
+                    tabs.focussedTab.editor.movePatchToPending();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSetStatusMailed",
+                isAvailable: function(editor){ return checkAvailable(editor, "mailed"); },
+                exec: function() {
+                    tabs.focussedTab.editor.movePatchToMailed();
+                },
+                passEvent: true
+            }, handle);
+        }
+
         var loaded = false;
         function load() {
             if (loaded) return false;
             loaded = true;
-            
+
             draw();
+
+            setMenus();
+
+            setCommands();
         }
 
         var drawn = false;
@@ -104,27 +180,21 @@ define(function(require, exports, module) {
                             class: "btn-red",
                             onclick: movePatchToWhiteList
                         }),
-                        btnPatchBuild = new ui.button({
+                        /*btnPatchBuild = new ui.button({
                             skin: "btn-default-css3",
                             caption: "Rebuild",
                             onclick: rebuildSelectedPatch
-                        }),
-                        /*
-                        btnNotBuild = new ui.button({
-                            skin: "btn-default-css3",
-                            caption: "Notbuild",
-                            onclick: skipBuildSelectedPatch
                         }),*/
                         btnPatchPending = new ui.button({
                             skin: "btn-default-css3",
-                            caption: "Pending",
+                            caption: "Ready",
                             onclick: movePatchToPending
                         }),
-                        btnPatchRenew = new ui.button({
+                        /*btnPatchRenew = new ui.button({
                             skin: "btn-default-css3",
                             caption: "Renew",
                             onclick: movePatchToRenew
-                        }),
+                        }),*/
                         btnPatchSend = new ui.button({
                             skin: "btn-default-css3",
                             caption: "Send",
@@ -213,53 +283,46 @@ define(function(require, exports, module) {
                         return;
 
                     if (item.status == 201 || item.status == 301 ||
-                    	item.status == 405 || item.status == 407) {
-                    	btnPatchDelete.disable();
+                        item.status == 405 || item.status == 407) {
+                        btnPatchDelete.disable();
                     } else {
-                    	btnPatchDelete.enable();
+                        btnPatchDelete.enable();
                     }
 
                     if ((item.build == 1 || item.build == 3 || item.build == 4) && item.status == 102) {
-                    	btnPatchPending.enable();
+                        btnPatchPending.enable();
                     } else {
-                    	btnPatchPending.disable();
+                        btnPatchPending.disable();
                     }
-
+                    /*
                     if (item.status == 201 || item.status == 301) {
-                    	btnPatchRenew.enable();
+                        btnPatchRenew.enable();
                     } else {
-                    	btnPatchRenew.disable();
-                    }
+                        btnPatchRenew.disable();
+                    }*/
 
                     if ((item.build == 1 || item.build == 3 || item.build == 4) && item.status == 201) {
-                    	btnPatchSend.enable();
+                        btnPatchSend.enable();
                     } else {
-                    	btnPatchSend.disable();
+                        btnPatchSend.disable();
                     }
 
-                    if ((item.status != 101 && item.status != 102 && item.status != 104) || item.build == 0) {
-                    	btnPatchBuild.disable();
+                    /*if ((item.status != 101 && item.status != 102 && item.status != 104) || item.build == 0) {
+                        btnPatchBuild.disable();
                     } else {
-                    	btnPatchBuild.enable();
-                    }
-
-                    /*
-                    if (item.build == 1 || item.build == 3) {
-                    	btnNotBuild.disable();
-                    } else {
-                    	btnNotBuild.enable();
+                        btnPatchBuild.enable();
                     }*/
 
                     if (item.status != 102 && item.status != 104) {
-                	    btnPatchEdit.disable();
+                        btnPatchEdit.disable();
                     } else {
-                    	btnPatchEdit.enable();
+                        btnPatchEdit.enable();
                     }
 
                     if (item.status != 101 && item.status != 102 && item.status != 104 && item.status != 105) {
-                    	btnPatchEditFile.disable();
+                        btnPatchEditFile.disable();
                     } else {
-                    	btnPatchEditFile.enable();
+                        btnPatchEditFile.enable();
                     }
 
                     patch.patchs.get('patches/' + item.id + '/', {}, function (err, data, res) {
@@ -269,6 +332,10 @@ define(function(require, exports, module) {
 
                 });
             });
+
+            function refreshPatchList() {
+                updatePatchList(currentDocument);
+            }
 
             function updatePatchList(doc) {
                 if (!doc)
@@ -301,7 +368,7 @@ define(function(require, exports, module) {
                     item.title,
                     function() {
                         patch.patchs.delete('patches/' + item.id + '/', {
-                        	"body": JSON.stringify({'id': item.id})
+                            "body": JSON.stringify({'id': item.id})
                         }, function (err, data, res) {
                             if (!err) {
                                 updatePatchList(currentDocument);
@@ -454,19 +521,36 @@ define(function(require, exports, module) {
                 });
             }
 
-            function sendPatchWizard() {
-            	var item = datagrid.selection.getCursor();
-            	
-            	if (!item)
-            		return;
+            function movePatchToMailed() {
+                var item = datagrid.selection.getCursor();
 
-            	sendWizard.setId(item.id);
-            	sendWizard.show(true);
+                if (!item)
+                    return;
+
+                patch.patchs.put('patches/' + item.id + '/', {
+                    "body": JSON.stringify({'id': item.id, 'status': 301})
+                }, function (err, data, res) {
+                    if (!err) {
+                        updatePatchList(currentDocument);
+                    } else {
+                        showError("Failed to save patch status");
+                    }
+                });
+            }
+
+            function sendPatchWizard() {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return;
+
+                sendWizard.setId(item.id);
+                sendWizard.show(true);
             }
 
             function showFileChangeList() {
                 var item = datagrid.selection.getCursor();
-                
+
                 if (!item)
                     return;
 
@@ -478,6 +562,40 @@ define(function(require, exports, module) {
                         showError("Failed to get patch file change list");
                     }
                 });
+            }
+
+            function checkAvailable(action) {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return false;
+
+                if (action == 'rebuild') {
+                    if ((item.status != 101 && item.status != 102 && item.status != 104) || item.build == 0)
+                        return false;
+                    else
+                        return true;
+                } else if (action == "skipbuild") {
+                    if (item.build == 1 || item.build == 3)
+                        return false;
+                    else
+                        return true;
+                } else if (action == "renew") {
+                    if (item.status == 201 || item.status == 301)
+                        return true;
+                    else
+                        return false;
+                } else if (action == "pending") {
+                    if ((item.build == 1 || item.build == 3 || item.build == 4) && item.status == 102)
+                        return true;
+                    else
+                        return false;
+                } else if (action == "mailed") {
+                    if (item.status == 201)
+                        return true;
+                    else
+                        return false;
+                }
             }
 
             plugin.on("documentActivate", function(e) {
@@ -498,7 +616,16 @@ define(function(require, exports, module) {
             });
 
             plugin.freezePublicAPI({
-                
+                checkAvailable: checkAvailable,
+                refreshPatchList: refreshPatchList,
+                deleteSelectedPatch: deleteSelectedPatch,
+                rebuildSelectedPatch: rebuildSelectedPatch,
+                skipBuildSelectedPatch: skipBuildSelectedPatch,
+                movePatchToPending: movePatchToPending,
+                movePatchToRenew: movePatchToRenew,
+                movePatchToMailed: movePatchToMailed,
+                movePatchToWhiteList: movePatchToWhiteList,
+                sendPatchWizard: sendPatchWizard
             });
 
             plugin.load(null, "patcheditor");

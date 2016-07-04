@@ -77,7 +77,7 @@ define(function(require, exports, module) {
         		className += ' status_report';
     			break;
     		case 201:
-    			node.status_txt = 'PENDDING';
+    			node.status_txt = 'READY';
         		className += ' status_pendding';
     			break;
     		case 301:
