@@ -304,11 +304,10 @@ class CoccinelleFileExportViewSet(mixins.ListModelMixin,
         return PatchType.objects.filter(user=user, engine__id=ENGINE_COCCINELLE)
 
     def _archive_add(self, archive, ptype):
-        content = ptype.content
-
         tmpfname = tempfile.mktemp(dir = ptype.tempdir())
         with open(tmpfname, "w") as fp:
-                fp.write(content)
+            serializer = PatchTypeSerializer(ptype)
+            fp.write(json.dumps(serializer.data, indent=4))
 
         archive.add(tmpfname, arcname = "%s.json" % ptype.name)
 
@@ -317,7 +316,7 @@ class CoccinelleFileExportViewSet(mixins.ListModelMixin,
     def _archive_add_content(self, archive, content):
         tmpfname = tempfile.mktemp()
         with open(tmpfname, "w") as fp:
-                fp.write(content)
+            fp.write(content)
 
         archive.add(tmpfname, arcname = "coccinelle.json")
 
@@ -328,7 +327,17 @@ class CoccinelleFileExportViewSet(mixins.ListModelMixin,
         response['Content-Disposition'] = 'attachment; filename=coccinelle-scripts-all-%s.tar.gz' % strftime("%Y%m%d%H%M%S", gmtime())
         archive = tarfile.open(fileobj=response, mode='w:gz')
 
-        serializer = CoccinelleTypeSerializer(self.get_queryset(), many=True)
+        for etype in self.get_queryset():
+            try:
+                path = os.path.dirname(etype.fullpath())
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                with open(etype.fullpath(), "w") as cocci:
+                    cocci.write(etype.content)
+            except:
+                pass
+
+        serializer = PatchTypeSerializer(self.get_queryset(), many=True)
 
         self._archive_add_content(archive, json.dumps(serializer.data, indent=4))
 
