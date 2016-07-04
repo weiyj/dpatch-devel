@@ -210,6 +210,11 @@ class CheckSparseEngine(PatchEngine):
             if not fread is None:
                 self.warning('FAKE WARNING: %s\n  %s  ==> EXPORT_SYMBOL(%s)' % (line, _line, _sym))
             return True
+        _cmd = "grep --include=*.h -r 'extern .* %s\W' > /dev/null" % (_sym, self._get_build_path())
+        if subprocess.call(_cmd, shell=True) == 0:
+            if not fread is None:
+                self.warning('FAKE WARNING: %s\n  %s  ==> extern %s' % (line, _line, _sym))
+            return True
         return False
 
     def _is_symbol_declared_not_include(self, _sym):
