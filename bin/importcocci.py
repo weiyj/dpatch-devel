@@ -251,6 +251,9 @@ def import_cocci_from_json(user, content):
 
         etype.save()
 
+        engine.total = F('total') + 1
+        engine.save()
+
     return True
 
 def import_cocci_file(user, target, fname, content):
