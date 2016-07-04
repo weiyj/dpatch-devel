@@ -43,7 +43,7 @@ define(function(require, exports, module) {
             editor.on("changeSelection", function (e) {
                 var node = e.node;
                 
-                if (node && node.content) {
+                if (node && (node.content.length !=0 || node.report.length != 0)) {
                     if (node.content.length != 0)
                         contentNode.innerHTML = utils.escapeXml(node.content);
                     else
