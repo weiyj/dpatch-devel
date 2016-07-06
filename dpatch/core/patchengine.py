@@ -45,7 +45,7 @@ class PatchEngine(EngineBase):
         patch = self._get_diff()
         self._revert_soure_file()
         if len(patch) < 2:
-            self.error("can not get diff for %s : type %d" % (self._fname, self.name()))
+            self.error("can not get diff for %s : type %s" % (self._fname, self.name()))
         return patch
 
     def _get_patch_title(self):
