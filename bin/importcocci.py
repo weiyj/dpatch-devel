@@ -74,7 +74,7 @@ def import_cocci_patch(user, fname, lines, cocci):
         if not os.path.exists(path):
             os.makedirs(path)
         with open(etype.fullpath(), "w") as cocci:
-            cocci.writelines(lines)
+            cocci.write('\n'.join(lines))
     except:
         ERROR("failed to write file %s" % etype.fullpath())
         return False
@@ -118,7 +118,7 @@ def import_cocci_report(user, fname, lines, cocci):
         if not os.path.exists(path):
             os.makedirs(path)
         with open(etype.fullpath(), "w") as cocci:
-            cocci.writelines(lines)
+            cocci.write('\n'.join(lines))
     except:
         ERROR("failed to write file %s" % etype.fullpath())
         return False
@@ -141,7 +141,7 @@ def import_cocci_kernel_patch(user, fname, lines, kcocci):
     title = kcocci.get_title()
     options = kcocci.get_options()
     description = kcocci.get_description()
-    content = "".join(lines)
+    content = "\n".join(lines)
     options = "-D patch %s" % options
 
     try:
@@ -161,7 +161,7 @@ def import_cocci_kernel_patch(user, fname, lines, kcocci):
         if not os.path.exists(path):
             os.makedirs(path)
         with open(etype.fullpath(), "w") as cocci:
-            cocci.writelines(lines)
+            cocci.write('\n'.join(lines))
     except:
         ERROR("failed to write file %s" % etype.fullpath())
         return False
@@ -184,7 +184,7 @@ def import_cocci_kernel_report(user, fname, lines, kcocci):
     title = kcocci.get_title()
     options = kcocci.get_options()
     description = kcocci.get_description()
-    content = "".join(lines)
+    content = "\n".join(lines)
     options = "-D context %s" % options
 
     try:
@@ -205,7 +205,7 @@ def import_cocci_kernel_report(user, fname, lines, kcocci):
         if not os.path.exists(path):
             os.makedirs(path)
         with open(etype.fullpath(), "w") as cocci:
-            cocci.writelines(lines)
+            cocci.write('\n'.join(lines))
     except:
         ERROR("failed to write file %s" % etype.fullpath())
         return False
