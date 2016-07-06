@@ -11,7 +11,7 @@ define(function(require, exports, module) {
         var utils = imports.utils;
 
         var plugin = new Panel("(Company) Name", main.consumes, {
-        	index: 100,
+        	index: 200,
         	height: 250,
         	caption: "Build Log",
         	minHeight: 130,
