@@ -376,7 +376,7 @@ class PatchChangelogView(APIView):
         gitlog = execute_shell_unicode_noret("cd %s; git log -n 20 --pretty=format:'%%ci||||%%an||||%%s||||%%H' %s" % (rdir, patch.file))
         fileinfo = '# git log -n 20 %s\n' % patch.file
         fileinfo += self._patch_format_gitinfo(patch.tag.repo, gitlog)
-        if patch.status in [Patch.PATCH_STATUS_PATCH, Patch.PATCH_STATUS_RENEW]:
+        if patch.status in [Patch.PATCH_STATUS_PATCH, Patch.PATCH_STATUS_RENEW, Patch.PATCH_STATUS_PENDDING]:
             count = 0
             for line in find_remove_lines(patch.diff):
                 gitlog = execute_shell_unicode_noret("cd %s; git log -n 1 -S '%s' --pretty=format:'%%ci||||%%an||||%%s||||%%H' %s" % (rdir, line, patch.file))
