@@ -210,7 +210,7 @@ class CheckSparseEngine(PatchEngine):
             if not fread is None:
                 self.warning('FAKE WARNING: %s\n  %s  ==> EXPORT_SYMBOL(%s)' % (line, _line, _sym))
             return True
-        _cmd = "grep --include=*.h -r 'extern .* %s\W' > /dev/null" % (_sym, self._get_build_path())
+        _cmd = "grep -r --exclude='%s' '\W%s\W' %s > /dev/null" % (os.path.basename(self._fname), _sym, self._get_build_path())
         if subprocess.call(_cmd, shell=True) == 0:
             if not fread is None:
                 self.warning('FAKE WARNING: %s\n  %s  ==> extern %s' % (line, _line, _sym))
@@ -331,7 +331,7 @@ class CheckSparseEngine(PatchEngine):
             return False
         _sym = a[-1].strip().split(' ')[-1]
         self._execute_shell("sed -i '%ss/\(\s*%s\s*\)%s\s*/\\1/' %s" % (a[1], _sym, _sym, self._get_build_path()))
-        self._execute_shell("sed -i '%ss/const char const \*/const char */' %s" % (a[1], self._get_build_path()))
+        self._execute_shell("sed -i '%ss/const char const \*/const char * const /' %s" % (a[1], self._get_build_path()))
         return True
 
     def _is_dubious_bitwise_with_not(self, line):
