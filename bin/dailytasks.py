@@ -501,7 +501,8 @@ def is_module_build(filename, output):
     if not isinstance(output, unicode):
         output = unicode(output, errors='ignore')
 
-    if output.find('LD [M]') == -1:
+    # build-in module result in built-in.o
+    if output.find('LD [M]') == -1 and output.find('built-in.o') == -1:
         return False
 
     objfile = "%s.o" % filename[:-2]
