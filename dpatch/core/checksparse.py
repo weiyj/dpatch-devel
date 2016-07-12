@@ -114,8 +114,8 @@ class CheckSparseEngine(PatchEngine):
         if _cnt['total'] > 1:
             title += 's'
 
-        if self._recheck is True:
-            title = 'cHECK-' + title
+        #if self._recheck is True:
+        #    title = 'cHECK-' + title
 
         return title
 
