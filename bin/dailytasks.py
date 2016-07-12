@@ -622,7 +622,8 @@ def do_task_build():
                 log += '\nLD [M] %s\n' % objfile
 
         output = log
-        if patch.file.find('include/') == 0 or is_module_build(patch.file, output) == False:
+
+        if patch.file.find('include/') == 0 or (not is_module_build(patch.file, output) and not os.path.exists(os.path.join(repo.builddir(), 'vmlinux'))):
             buildlog += '\n# make vmlinux\n'
             ret, log = execute_shell_unicode("cd %s; make vmlinux" % (repo.builddir()))
             buildlog += log
@@ -653,6 +654,8 @@ def do_task_build():
             patch.build = Patch.BUILD_STASTU_FAIL
         elif buildlog.find(': warning: ') != -1:
             patch.build = Patch.BUILD_STASTU_WARN
+        elif not is_c_file(patch.file) or not is_module_build(patch.file, output):
+            patch.build = Patch.BUILD_STASTU_SKIP
         else:
             patch.build = Patch.BUILD_STASTU_PASS
         patch.buildlog = buildlog
