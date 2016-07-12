@@ -26,9 +26,15 @@ django.setup()
 
 from django.db.models import Q
 from dpatch.patch.models import Patch
+from dpatch.repository.models import RepositoryTag
 from dpatch.taskqueue.models import StatusTaskQueue
 
 def main(args):
+
+    for tag in RepositoryTag.objects.all():
+        count = Patch.objects.filter(tag=tag).count()
+        tag.total = count
+        tag.save()
 
     patchs = Patch.objects.filter(Q(status = Patch.PATCH_STATUS_NEW) |
                                 Q(status = Patch.PATCH_STATUS_PATCH) |
