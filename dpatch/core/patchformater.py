@@ -21,6 +21,7 @@
 
 import os
 import re
+import textwrap
 
 from time import localtime, strftime
 
@@ -505,7 +506,17 @@ class PatchFormater(object):
             return '[PATCH %s] %s%s %s' % (target, self._module, seq, title)
 
     def format_desc(self):
-        return self._format_value(self._desc)
+        reindent = False
+        txt = self._format_value(self._desc)
+        for line in txt.split('\n'):
+            if len(line) > 72:
+                reindent = True
+                break
+
+        if reindent is True:
+            return '\n'.join(textwrap.wrap(txt, width=72))
+        else:
+            return txt
 
     def get_mail_list(self):
         if self._mlist is None:
