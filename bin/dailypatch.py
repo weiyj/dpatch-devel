@@ -117,20 +117,20 @@ def remove_unchange_file(repo, changelists):
 
 def check_patch(repo, git, rtag, flists, commit):
     tcount = 0
-    for pt in PatchType.objects.filter(user=repo.user):
-        if pt.engine.status is False:
-            DEBUG("engine %s is disabled" % pt.engine.name)
-            continue
+    for f in flists:
+        for pt in PatchType.objects.filter(user=repo.user, status=True):
+            if pt.engine.status is False:
+                DEBUG("engine %s is disabled" % pt.engine.name)
+                continue
 
-        if pt.status is False:
-            DEBUG("patch type %s is disabled" % pt.name)
-            continue
+            if pt.status is False:
+                DEBUG("patch type %s is disabled" % pt.name)
+                continue
 
-        if pt.flags & PatchType.TYPE_FLAG_DEV_ONLY and repo.developing is False:
-            DEBUG("patch type %s is skip for non-devel" % pt.name)
-            continue
+            if pt.flags & PatchType.TYPE_FLAG_DEV_ONLY and repo.developing is False:
+                #DEBUG("patch type %s is skip for non-devel" % pt.name)
+                continue
 
-        for f in flists:
             # check white black list
             # file not exists in white list
             if len(pt.includes) != 0 and not is_white_black_list(pt.includes, f):
