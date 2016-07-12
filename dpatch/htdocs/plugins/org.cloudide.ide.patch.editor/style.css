@@ -21,3 +21,11 @@
 .status_mailed {
     background-color: #bec7f9;
 }
+
+.status_applied, .status_accepted {
+    background-color: #d9eafd;
+}
+
+.status_rejected {
+    background-color: #ceb0b0;
+}

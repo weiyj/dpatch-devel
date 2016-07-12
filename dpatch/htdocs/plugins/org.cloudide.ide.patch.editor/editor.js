@@ -42,6 +42,11 @@ define(function(require, exports, module) {
                 command: "patchSetStatusPending"}), 500, handle);
             menus.addItemByPath("Edit/Patch/Move to Mailed Status", new ui.item({
                 command: "patchSetStatusMailed"}), 600, handle);
+            menus.addItemByPath("Edit/Patch/~", new ui.divider(), 700, handle);
+            menus.addItemByPath("Edit/Patch/Merger Patchs", new ui.item({
+                command: "patchMergerPatchs"}), 800, handle);
+            menus.addItemByPath("Edit/Patch/UnMerger Patch", new ui.item({
+                command: "patchUnMergerPatch"}), 900, handle);
         }
 
         function setCommands() {
