@@ -22,7 +22,7 @@
     background-color: #bec7f9;
 }
 
-.status_applied, .status_accepted {
+.status_applied, .status_accepted, .build_warn.status_applied, .build_warn.status_accepted {
     background-color: #c9f5f9;
 }
 

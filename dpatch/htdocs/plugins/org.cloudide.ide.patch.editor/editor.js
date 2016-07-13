@@ -42,11 +42,15 @@ define(function(require, exports, module) {
                 command: "patchSetStatusPending"}), 500, handle);
             menus.addItemByPath("Edit/Patch/Move to Mailed Status", new ui.item({
                 command: "patchSetStatusMailed"}), 600, handle);
-            menus.addItemByPath("Edit/Patch/~", new ui.divider(), 700, handle);
+            menus.addItemByPath("Edit/Patch/Move to Accepted Status", new ui.item({
+                command: "patchSetStatusAccepted"}), 700, handle);
+            menus.addItemByPath("Edit/Patch/Move to Rejected Status", new ui.item({
+                command: "patchSetStatusRejected"}), 800, handle);
+            menus.addItemByPath("Edit/Patch/~", new ui.divider(), 900, handle);
             menus.addItemByPath("Edit/Patch/Merger Patchs", new ui.item({
-                command: "patchMergerPatchs"}), 800, handle);
+                command: "patchMergerPatchs"}), 1000, handle);
             menus.addItemByPath("Edit/Patch/UnMerger Patch", new ui.item({
-                command: "patchUnMergerPatch"}), 900, handle);
+                command: "patchUnMergerPatch"}), 1100, handle);
         }
 
         function setCommands() {
@@ -97,6 +101,24 @@ define(function(require, exports, module) {
                 isAvailable: function(editor){ return checkAvailable(editor, "mailed"); },
                 exec: function() {
                     tabs.focussedTab.editor.movePatchToMailed();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSetStatusAccepted",
+                isAvailable: function(editor){ return checkAvailable(editor, "accepted"); },
+                exec: function() {
+                    tabs.focussedTab.editor.movePatchToAccepted();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSetStatusRejected",
+                isAvailable: function(editor){ return checkAvailable(editor, "rejected"); },
+                exec: function() {
+                    tabs.focussedTab.editor.movePatchToRejected();
                 },
                 passEvent: true
             }, handle);
@@ -543,6 +565,40 @@ define(function(require, exports, module) {
                 });
             }
 
+            function movePatchToAccepted() {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return;
+
+                patch.patchs.put('patches/' + item.id + '/', {
+                    "body": JSON.stringify({'id': item.id, 'status': 407})
+                }, function (err, data, res) {
+                    if (!err) {
+                        updatePatchList(currentDocument);
+                    } else {
+                        showError("Failed to save patch status");
+                    }
+                });
+            }
+
+            function movePatchToRejected() {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return;
+
+                patch.patchs.put('patches/' + item.id + '/', {
+                    "body": JSON.stringify({'id': item.id, 'status': 406})
+                }, function (err, data, res) {
+                    if (!err) {
+                        updatePatchList(currentDocument);
+                    } else {
+                        showError("Failed to save patch status");
+                    }
+                });
+            }
+
             function sendPatchWizard() {
                 var item = datagrid.selection.getCursor();
 
@@ -600,6 +656,16 @@ define(function(require, exports, module) {
                         return true;
                     else
                         return false;
+                } else if (action == "accepted") {
+                    if (item.status == 301)
+                        return true;
+                    else
+                        return false;
+                } else if (action == "rejected") {
+                    if (item.status == 301)
+                        return true;
+                    else
+                        return false;
                 }
             }
 
@@ -629,6 +695,8 @@ define(function(require, exports, module) {
                 movePatchToPending: movePatchToPending,
                 movePatchToRenew: movePatchToRenew,
                 movePatchToMailed: movePatchToMailed,
+                movePatchToAccepted: movePatchToAccepted,
+                movePatchToRejected: movePatchToRejected,
                 movePatchToWhiteList: movePatchToWhiteList,
                 sendPatchWizard: sendPatchWizard
             });
