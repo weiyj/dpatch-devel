@@ -9,7 +9,7 @@ define(function(require, exports, module) {
 
         var plugin = new Plugin("Ajax.org", main.consumes);
 
-        var tags = api.apiWrapper('/repository/tags', ["get"]);
+        var tags = api.apiWrapper('/repository/tags/', ["get"]);
         var patchs = api.apiWrapper('/patch/');
 
         plugin.freezePublicAPI({
