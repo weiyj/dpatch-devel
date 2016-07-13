@@ -47,7 +47,8 @@ def update_err_ptr_ret_chk(mfuncs):
                 'platform_device_register_full', 'anon_inode_getfile',
                 'of_clk_get_by_name', 'sock_alloc_file', 'skb_mac_gso_segment',
                 'get_fb_info', 'unpack_dfa', 'select_bad_process', 'perf_init_event',
-                'debugfs_rename', 'pinctrl_register', 'rhashtable_walk_next']
+                'debugfs_rename', 'pinctrl_register', 'rhashtable_walk_next',
+                'devm_gpiod_get_index_optional', 'devm_gpiod_get_optional']
 
     funcs = []
     for key in sorted(mfuncs.keys()):
