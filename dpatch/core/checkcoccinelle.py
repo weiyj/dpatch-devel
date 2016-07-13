@@ -23,9 +23,12 @@ import os
 import re
 import tempfile
 import subprocess
+import textwrap
 
 from .patchengine import PatchEngine
 from .reportengine import ReportEngine
+
+TYPE_HAS_DESCRIPTION = 64
 
 class CheckCocciPatchEngine(PatchEngine):
     def __init__(self, repo, ptype, build = None, logger = None):
@@ -108,6 +111,36 @@ class CheckCocciPatchEngine(PatchEngine):
                 self.warning('\n'.join(self._diff))
 
         return False
+
+    def _get_patch_description(self):
+        if self._cocci.flags & TYPE_HAS_DESCRIPTION:
+            cocci = self._cocci
+            spfile = cocci.fullpath()
+            if not os.path.exists(spfile):
+                return None
+
+            options = cocci.options
+            if options.find('-D patch') != -1:
+                options = options.replace('-D patch', '')
+
+            timeout = 60
+            args = '/usr/bin/spatch -D content %s -I %s -timeout %d -very_quiet -sp_file %s %s' % (options,
+                            os.path.join(self._repo, 'include'), timeout,
+                            spfile, self._get_file_path())
+            lines = []
+            for line in self._execute_shell(args):
+                # skip coccinelle warning
+                if line.find('warning: ') == 0:
+                    continue
+                lines.append(line)
+
+            if len(lines) > 0:
+                return '\n'.join(textwrap.wrap('\n'.join(lines), width=72))
+            else:
+                return None
+        else:
+            return None
+
 
 class CheckCocciReportEngine(ReportEngine):
     def __init__(self, repo, ptype, build = None, logger = None):
