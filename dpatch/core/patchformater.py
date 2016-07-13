@@ -131,6 +131,9 @@ class PatchFormater(object):
                 continue
             m = re.sub('\([^>]*\)$', '', m).strip()
             if re.search(r'<.*>', m) != None:
+                # fix some mail address
+                if m.find("Mauro Carvalho Chehab") == 0 and m.count('<') > 1:
+                    m = "Mauro Carvalho Chehab <mchehab@osg.samsung.com>"
                 mailto.append(m)
             elif re.search('linux-kernel@vger.kernel.org', m) != None:
                 if len(mailcc) == 0:
@@ -168,12 +171,13 @@ class PatchFormater(object):
         if len(mailto) == 0 and mailcc.count('netdev@vger.kernel.org') != 0:
             mailto.append('David S. Miller <davem@davemloft.net>')
 
+        #if len(mailto) == 0 and len(commit_signer) != 0:
+        #    mailto.append(commit_signer)
+
         #if read_config('git.use_commit_singer', True):
-        #    for m in commit_signer_list:
-        #        mailto.append(m)
-        #else:
-        if len(mailto) == 0 and len(commit_signer) != 0:
-            mailto.append(commit_signer)
+        for m in commit_signer_list:
+            if mailto.count(m) == 0:
+                mailto.append(m)
 
         elist = ""
         if len(mailto) != 0:
