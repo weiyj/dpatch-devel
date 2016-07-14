@@ -491,10 +491,14 @@ def do_task_status():
 
 def commit_from_stable(repo):
     commits = execute_shell('cd %s; cat .git/refs/remotes/origin/master' % repo.builddir())
+    if len(commits) == 0:
+        return None
     return commits[-1]
 
 def commit_from_repo(repo):
     commits = execute_shell('cd %s; git log -n 1 --pretty=format:%%H%%n' % repo.builddir())
+    if len(commits) == 0:
+        return None
     return commits[-1]
 
 def is_module_build(filename, output):
@@ -541,6 +545,10 @@ def do_task_build():
         commit = commit_from_stable(patch.tag.repo)
         if commit is None or len(commit) == 0:
             commit = commit_from_repo(patch.tag.repo)
+        if commit is None or len(commit) == 0:
+            INFO("failed to get commit...")
+            continue
+
         execute_shell("cd %s; git reset --hard %s" % (patch.tag.repo.builddir(), commit))
         if os.path.exists(os.path.join(patch.tag.repo.builddir(), '.git/rebase-apply')):
             execute_shell("cd %s; rm -rf .git/rebase-apply" % patch.tag.repo.builddir())
