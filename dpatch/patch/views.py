@@ -545,7 +545,10 @@ class PatchSendWizardView(APIView):
         cmd += '--smtp-encryption %s ' % smtp.encryption
         cmd += '--smtp-user %s ' % smtp.username
         cmd += '--smtp-pass %s ' % smtp.password
-        cmd += '--from %s ' % smtp.email
+        if len(smtp.alias) > 0:
+            cmd += '--from "%s <%s>" ' % (smtp.alias, smtp.email)
+        else:
+            cmd += '--from %s ' % smtp.email
         if not patch.msgid is None and len(patch.msgid) > 0:
             cmd += '--in-reply-to %s ' % patch.msgid
         cmd += patch.fullpath()
