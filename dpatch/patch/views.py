@@ -328,7 +328,8 @@ class PatchFileView(APIView):
             if patch.diff != diff:
                 patch.diff = diff
                 patch.status = Patch.PATCH_STATUS_PATCH
-                patch.build = 0
+                if patch.build != Patch.BUILD_STASTU_SKIP:
+                    patch.build = 0
             patch.save()
         except:
             return Response({
