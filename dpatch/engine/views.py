@@ -261,6 +261,7 @@ class CoccinelleFileView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         ptype.title = title
+        ptype.options = parser.get_options()
         ptype.description = description
         if content != ptype.content:
             ptype.content = content
