@@ -63,7 +63,8 @@ class CheckSparseEngine(PatchEngine):
 
     def _get_patch_title(self):
         _cnt = {'total': 0, 'symbol': 0, 'null': 0, 'unused': 0,
-                'non_ansi': 0, 'duplicate': 0, 'dubious_not': 0}
+                'non_ansi': 0, 'duplicate': 0, 'dubious_not': 0,
+                'spaces': 0}
         title = 'fix sparse warning'
         _dubious_type = []
         for line in self._diff:
@@ -85,6 +86,9 @@ class CheckSparseEngine(PatchEngine):
                 _type = line.split(':')[-1].strip()
                 if _dubious_type.count(_type) == 0:
                     _dubious_type.append(_type)
+            elif self._is_different_address_spaces(line):
+                _cnt['spaces'] += 1
+                _cnt['total'] += 1
 
         if _cnt['symbol'] == _cnt['total']:
             title = 'fix non static symbol warning'
@@ -109,6 +113,8 @@ class CheckSparseEngine(PatchEngine):
                 title = 'fix dubious %s warning' % _dubious_type[0]
             else:
                 title = 'fix dubious bitwise operation on !x warning'
+        elif _cnt['spaces'] == _cnt['total']:
+            title = 'fix return pointer different address spaces warning'
         # fix sparse endianness warnings
 
         if _cnt['total'] > 1:
@@ -119,6 +125,13 @@ class CheckSparseEngine(PatchEngine):
 
         return title
 
+    def _nowrap_description(self, line, desc):
+        if line.find('warning: incorrect type') != -1:
+            return True
+        elif desc != 'warning':
+            return True
+        return False
+
     def _get_patch_description(self):
         if len(self._diff) > 1:
             _desc = 'Fixes the following sparse warnings:\n'
@@ -128,7 +141,7 @@ class CheckSparseEngine(PatchEngine):
         for line in self._diff:
             if len(line) > 80:
                 a = line.split(':')
-                if len(a) > 4:
+                if len(a) > 4 and not self._nowrap_description(line, a[3]):
                     _desc += '\n' + ':'.join(a[:4])
                     _desc += ':\n' + ':'.join(a[4:])
                 else:
@@ -383,6 +396,32 @@ class CheckSparseEngine(PatchEngine):
 
         return True
 
+    def _is_different_address_spaces(self, line):
+        if re.search("warning: incorrect type in return expression \(different address spaces\)", line):
+            return True
+        return False
+
+    def _get_function_return_type(self, diff):
+        rtype = None
+        for line in diff.split('\n'):
+            if re.match(r"@@[^@]*@@", line):
+                line = re.sub("@@[^@]*@@", "", line)
+                line = re.sub("\w+\(.*", "", line).strip()
+                line = re.sub("static", "", line).strip()
+                rtype = re.sub("\*$", "__force *", line).strip()
+            elif line.find('CAST_RET') != -1:
+                return rtype
+        return None
+
+    def _fix_different_address_spaces(self, line):
+        a = line.split(':')
+        if len(a) < 5:
+            return False
+        self._execute_shell("sed -i '%ss/return /return (CAST_RET)/' %s" % (a[1], self._get_build_path()))
+        rtype = self._get_function_return_type(self._get_diff())
+        if not rtype is None:
+            self._execute_shell("sed -i '%ss/CAST_RET/%s/' %s" % (a[1], rtype, self._get_build_path()))
+
     def _modify_source_file(self):
         _rmlines = []
         self._includes = []
@@ -402,6 +441,8 @@ class CheckSparseEngine(PatchEngine):
                     self._fix_duplicate_symbol(line)
                 elif self._is_dubious_bitwise_with_not(line):
                     self._fix_dubious_bitwise_with_not(line)
+                elif self._is_different_address_spaces(line):
+                    self._fix_different_address_spaces(line)
             for _nr in sorted(_rmlines, reverse = True):
                 self._execute_shell("sed -i '%dd' %s" % (_nr, self._get_build_path()))
         except:
@@ -474,6 +515,8 @@ class CheckSparseEngine(PatchEngine):
                 return True
             elif self._is_dubious_bitwise_with_not(line):
                 return True
+            elif self._is_different_address_spaces(line):
+                return True
             elif self._is_skip_type_list(line):
                 return False
         return False
@@ -488,12 +531,12 @@ class CheckSparseEngine(PatchEngine):
         return diffOut
 
 if __name__ == "__main__":
-    repo = "/pub/scm/build/linux-test"
-    files = ['drivers/mfd/ab8500-debugfs.c', 'init/main.c']
+    repo = "/var/lib/dpatch/build/2/linux-next"
+    files = ['net/netfilter/nf_tables_api.c', 'drivers/gpu/drm/i915/i915_gem_gtt.c']
 
     count = 0
     for sfile in files:
-        detector = CheckSparseEngine("/pub/scm/build/linux-next", None, repo)
+        detector = CheckSparseEngine("/var/lib/dpatch/build/2/linux-next", repo, None)
         detector.set_filename(sfile)
         #print detector._guess_mail_list()
         if detector.should_patch():
