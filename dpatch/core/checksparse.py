@@ -125,10 +125,10 @@ class CheckSparseEngine(PatchEngine):
 
         return title
 
-    def _nowrap_description(self, line, desc):
+    def _nowrap_description(self, line):
         if line.find('warning: incorrect type') != -1:
             return True
-        elif desc != 'warning':
+        elif line.find('warning: ') == -1:
             return True
         return False
 
@@ -141,7 +141,7 @@ class CheckSparseEngine(PatchEngine):
         for line in self._diff:
             if len(line) > 80:
                 a = line.split(':')
-                if len(a) > 4 and not self._nowrap_description(line, a[3]):
+                if len(a) > 4 and not self._nowrap_description(line):
                     _desc += '\n' + ':'.join(a[:4])
                     _desc += ':\n' + ':'.join(a[4:])
                 else:
