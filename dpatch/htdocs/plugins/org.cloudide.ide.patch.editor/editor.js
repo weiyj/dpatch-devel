@@ -32,7 +32,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("Edit/~", new ui.divider(), 2000, handle);
             menus.addItemByPath("Edit/Patch/", null, 2100, handle);
             menus.addItemByPath("Edit/Patch/Rebuild Patch", new ui.item({
-                command: "patchSkipBuild"}), 100, handle);
+                command: "patchRebuild"}), 100, handle);
             menus.addItemByPath("Edit/Patch/Skip Build", new ui.item({
                 command: "patchSkipBuild"}), 200, handle);
             menus.addItemByPath("Edit/Patch/~", new ui.divider(), 300, handle);
