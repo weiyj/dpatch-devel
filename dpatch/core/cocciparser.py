@@ -25,6 +25,7 @@ class CocciParser(object):
         self._title = ''
         self._fixed = ''
         self._options = ''
+        self._flags = None
         self._desc = ''
         self._efiles = []
         self._content = ''
@@ -45,6 +46,9 @@ class CocciParser(object):
                 if line.find('/// Options:') == 0:
                     self._options = line
                     self._options = self._options.replace('/// Options:', '').strip()
+                elif line.find('/// Flags:') == 0:
+                    self._flags = line
+                    self._flags = self._flags.replace('/// Flags:', '').strip()
                 elif line.find('/// Fixed:') == 0:
                     self._fixed = line
                     self._fixed = self._fixed.replace('/// Fixed:', '').strip()
@@ -89,6 +93,9 @@ class CocciParser(object):
 
     def get_options(self):
         return self._options
+
+    def get_flags(self):
+        return self._flags
 
     def get_description(self):
         return self._desc

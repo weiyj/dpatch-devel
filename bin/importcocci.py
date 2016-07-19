@@ -56,6 +56,7 @@ def import_cocci_patch(user, fname, lines, cocci):
     description = cocci.get_description()
     content = cocci.get_content()
     efiles = cocci.get_efiles()
+    flags = cocci.get_flags()
 
     try:
         engine = PatchEngine.objects.get(name='checkcoccinelle')
@@ -79,6 +80,9 @@ def import_cocci_patch(user, fname, lines, cocci):
         ERROR("failed to write file %s" % etype.fullpath())
         return False
 
+    if not flags is None:
+        etype.flags = flags
+
     etype.save()
 
     engine.total = F('total') + 1
@@ -100,6 +104,7 @@ def import_cocci_report(user, fname, lines, cocci):
     description = cocci.get_description()
     content = cocci.get_content()
     efiles = cocci.get_efiles()
+    flags = cocci.get_flags()
 
     try:
         engine = PatchEngine.objects.get(name='checkcoccinelle')
@@ -122,6 +127,9 @@ def import_cocci_report(user, fname, lines, cocci):
     except:
         ERROR("failed to write file %s" % etype.fullpath())
         return False
+
+    if not flags is None:
+        etype.flags = flags
 
     etype.save()
 

@@ -263,6 +263,10 @@ class CoccinelleFileView(APIView):
         ptype.title = title
         ptype.options = parser.get_options()
         ptype.description = description
+        flags = parser.get_flags()
+        if not flags is None:
+            ptype.flags = flags
+
         if content != ptype.content:
             ptype.content = content
             with open(ptype.fullpath(), "w") as fp:
