@@ -593,7 +593,7 @@ class PatchSendWizardView(APIView):
         if patch.status != Patch.PATCH_STATUS_PENDDING:
             return Response({
                 'code': 1,
-                'detail': 'Wrong status ' + patch.status
+                'detail': 'Wrong status %d ' % patch.status
             }, status=status.HTTP_400_BAD_REQUEST)
 
         if step == 'checkpatch':
