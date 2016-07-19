@@ -574,6 +574,7 @@ def do_task_build():
         buildlog += log
         if ret != 0:
             INFO("build failed")
+            execute_shell("cd %s; git reset --hard %s" % (patch.tag.repo.builddir(), commit))
             patch.build = Patch.BUILD_STASTU_FAIL
             patch.buildlog = buildlog
             patch.save()
@@ -589,6 +590,7 @@ def do_task_build():
                 buildlog += log
                 if ret != 0:
                     INFO("build failed")
+                    execute_shell("cd %s; git reset --hard %s" % (patch.tag.repo.builddir(), commit))
                     patch.build = Patch.BUILD_STASTU_FAIL
                     patch.buildlog = buildlog
                     patch.save()
@@ -607,6 +609,7 @@ def do_task_build():
                 buildlog += log
                 if ret != 0:
                     INFO("build failed")
+                    execute_shell("cd %s; git reset --hard %s" % (patch.tag.repo.builddir(), commit))
                     patch.build = Patch.BUILD_STASTU_FAIL
                     patch.buildlog = buildlog
                     patch.save()
@@ -619,6 +622,7 @@ def do_task_build():
             buildlog += log
             if ret != 0:
                 INFO("build failed")
+                execute_shell("cd %s; git reset --hard %s" % (patch.tag.repo.builddir(), commit))
                 patch.build = Patch.BUILD_STASTU_FAIL
                 patch.buildlog = buildlog
                 patch.save()
@@ -637,6 +641,7 @@ def do_task_build():
             buildlog += log
             if ret != 0:
                 INFO("build failed")
+                execute_shell("cd %s; git reset --hard %s" % (patch.tag.repo.builddir(), commit))
                 patch.build = Patch.BUILD_STASTU_FAIL
                 patch.buildlog = buildlog
                 patch.save()
@@ -658,6 +663,7 @@ def do_task_build():
                 buildlog += log
                 buildlog += '\n'
 
+        execute_shell("cd %s; git reset --hard %s" % (patch.tag.repo.builddir(), commit))
         if buildlog.find(' Error ') != -1:
             patch.build = Patch.BUILD_STASTU_FAIL
         elif buildlog.find(': warning: ') != -1:
