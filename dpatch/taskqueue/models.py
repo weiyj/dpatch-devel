@@ -27,6 +27,8 @@ from dpatch.patch.models import Patch
 from django.utils.translation import ugettext_lazy as _
 
 class ScanTaskQueue(models.Model):
+    TASK_SCAN_FLAG_FORCE = 1
+
     id = models.AutoField(
         primary_key = True,
         verbose_name=_('ID'),
@@ -36,6 +38,11 @@ class ScanTaskQueue(models.Model):
     status = models.IntegerField(
         default = 0,
         verbose_name=_('Status'),
+    )
+
+    flags = models.IntegerField(
+        default = 0,
+        verbose_name=_('Flags'),
     )
 
     priority = models.IntegerField(

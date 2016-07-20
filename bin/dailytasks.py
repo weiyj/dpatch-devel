@@ -71,6 +71,15 @@ def is_change_obsoleted(repodir, fname, diff, days = 180):
     except:
         return True
 
+def should_check_is_obsoleted(task):
+    if task.flags & ScanTaskQueue.TASK_SCAN_FLAG_FORCE:
+        return False
+    if task.type.flags & PatchType.TYPE_FLAG_SKIP_OBSOLETE:
+        return True
+    if task.type.bugfix is False:
+        return True
+    return False
+
 def check_patch(task, detector):
     patchs = Patch.objects.filter(file = task.filename, type = task.type)
     rpatchs = []
@@ -132,7 +141,7 @@ def check_patch(task, detector):
         text = detector.get_patch()
 
         # NOTE: disable cleanup pattern which has no changed half year
-        if task.type.bugfix is False or task.type.flags & PatchType.TYPE_FLAG_SKIP_OBSOLETE:
+        if should_check_is_obsoleted(task):
             if is_change_obsoleted(task.tag.repo.dirname(), task.filename, text):
                 INFO("patch is obsoleted")
                 return False
@@ -223,7 +232,7 @@ def check_report(task, detector):
 
     text = detector.get_report()
 
-    if task.type.flags & PatchType.TYPE_FLAG_SKIP_OBSOLETE:
+    if should_check_is_obsoleted(task):
         if is_change_obsoleted(task.tag.repo.dirname(), task.filename, text):
             INFO("report is obsoleted")
             return False
