@@ -545,6 +545,8 @@ class PatchSendWizardView(APIView):
         cmd += '--smtp-encryption %s ' % smtp.encryption
         cmd += '--smtp-user %s ' % smtp.username
         cmd += '--smtp-pass %s ' % smtp.password
+        if smtp.flags & SMTPServer.SMTP_SSL_VERIFY_NONE:
+            cmd += '--smtp-ssl-cert-path "" '
         if len(smtp.alias) > 0:
             cmd += '--from "%s <%s>" ' % (smtp.alias, smtp.email)
         else:

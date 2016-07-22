@@ -25,6 +25,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 class SMTPServer(models.Model):
+    SMTP_SSL_VERIFY_NONE = 1
 
     id = models.AutoField(
         primary_key = True,
@@ -74,6 +75,11 @@ class SMTPServer(models.Model):
     alias = models.CharField(
         max_length = 256,
         verbose_name = _('Alias'),
+    )
+
+    flags = models.IntegerField(
+        default = 0,
+        verbose_name=_('Flags'),
     )
 
 class POPServer(models.Model):
@@ -126,4 +132,9 @@ class POPServer(models.Model):
     alias = models.CharField(
         max_length = 256,
         verbose_name = _('Alias'),
+    )
+
+    flags = models.IntegerField(
+        default = 0,
+        verbose_name=_('Flags'),
     )
