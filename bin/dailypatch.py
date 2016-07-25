@@ -60,7 +60,7 @@ def is_file_merge_changed(repo, sfile):
     nchksum = get_file_checksum(repo, sfile)
     ochksum = FileChecksum.objects.filter(file = sfile, checksum = nchksum)
     if len(ochksum) != 0:
-        return True
+        return False
     else:
         return True
 
