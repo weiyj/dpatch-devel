@@ -350,8 +350,9 @@ def check_patch_status(patch, detector):
 
     # we have checked this, file remove in devel tree?
     if not os.path.exists(detector._get_file_path()):
-        patch.status = Patch.PATCH_STATUS_REMOVED
-        patch.save()
+        if patch.status != Patch.PATCH_STATUS_MAILED:
+            patch.status = Patch.PATCH_STATUS_REMOVED
+            patch.save()
         return False
 
     should_patch = detector.should_patch()
@@ -369,8 +370,9 @@ def check_report_status(patch, detector):
 
     # we have checked this, file remove in devel tree?
     if not os.path.exists(detector._get_file_path()):
-        patch.status = Patch.PATCH_STATUS_REMOVED
-        patch.save()
+        if patch.status != Patch.PATCH_STATUS_MAILED:
+            patch.status = Patch.PATCH_STATUS_REMOVED
+            patch.save()
         return False
 
     should_report = detector.should_report()
@@ -420,8 +422,9 @@ def do_check_patch_changes(patch):
     repobuid = patch.tag.repo.builddir()
 
     if not os.path.exists(os.path.join(repodir, patch.file)):
-        patch.status = Patch.PATCH_STATUS_REMOVED
-        patch.save()
+        if patch.status != Patch.PATCH_STATUS_MAILED:
+            patch.status = Patch.PATCH_STATUS_REMOVED
+            patch.save()
         return True
 
     # check whether file exists in the excludes list
