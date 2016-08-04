@@ -371,6 +371,24 @@ class PatchFormater(object):
 
         return newfuncname
 
+    def _guest_paramter_name(self):
+        params = []
+        if self._content is None:
+            return params
+
+        for line in self._content.split('\n'):
+            line = line.strip()
+            if re.match(r"@@[^@]*@@", line):
+                continue
+            if re.search('^\+\s*\w+\s*\(\s*', line):
+                print line
+                fields = re.sub(r'^\+\s*\w+\s*\(\s*', "", line)
+                fields = re.sub(r'\);', "", fields)
+                for field in fields.split(','):
+                    params.append(field.strip())
+
+        return params
+
     def _format_value(self, value):
         if re.search(r'{{[^}]*}}', value):
             if os.path.isdir(self._fullpath()):
@@ -400,7 +418,7 @@ class PatchFormater(object):
                     value = re.sub(r'{{\s*variables\s*}}', ', '.join(varnames), value)
                     value = re.sub(r'{{\s*variable\s*}}', ', '.join(varnames), value)
                 else:
-                    value = re.sub(r'{{\s*variable\s*}}', '', value)                    
+                    value = re.sub(r'{{\s*variable\s*}}', '', value)
 
             if re.search(r'{{\s*struct\s*}}', value):
                 structs = self._guest_struct_name()
@@ -413,6 +431,19 @@ class PatchFormater(object):
             if re.search(r'{{\s*newfield\s*}}', value):
                 fields = self._guest_new_field_name()
                 value = re.sub(r'{{\s*newfield\s*}}', ', '.join(fields), value)
+
+            if re.search(r'{{\s*paramter\d*\s*}}', value):
+                params = self._guest_paramter_name()
+                if len(params) == 1:
+                    value = re.sub(r'{{\s*paramter\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*paramter1\s*}}', params[0], value)
+                elif len(params) > 1:
+                    value = re.sub(r'{{\s*paramter\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*paramter1\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*paramter2\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*paramter3\s*}}', params[0], value)
+
+                value = re.sub(r'{{\s*paramter\d*\s*}}', '', value)
 
             oldfuncs = self._guest_old_function_name()
             if len(oldfuncs) == 1:
