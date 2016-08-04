@@ -371,7 +371,7 @@ class PatchFormater(object):
 
         return newfuncname
 
-    def _guest_paramter_name(self):
+    def _guest_parameter_name(self):
         params = []
         if self._content is None:
             return params
@@ -432,18 +432,18 @@ class PatchFormater(object):
                 fields = self._guest_new_field_name()
                 value = re.sub(r'{{\s*newfield\s*}}', ', '.join(fields), value)
 
-            if re.search(r'{{\s*paramter\d*\s*}}', value):
-                params = self._guest_paramter_name()
+            if re.search(r'{{\s*parameter\d*\s*}}', value):
+                params = self._guest_parameter_name()
                 if len(params) == 1:
-                    value = re.sub(r'{{\s*paramter\s*}}', params[0], value)
-                    value = re.sub(r'{{\s*paramter1\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*parameter\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*parameter1\s*}}', params[0], value)
                 elif len(params) > 1:
-                    value = re.sub(r'{{\s*paramter\s*}}', params[0], value)
-                    value = re.sub(r'{{\s*paramter1\s*}}', params[0], value)
-                    value = re.sub(r'{{\s*paramter2\s*}}', params[0], value)
-                    value = re.sub(r'{{\s*paramter3\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*parameter\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*parameter1\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*parameter2\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*parameter3\s*}}', params[0], value)
 
-                value = re.sub(r'{{\s*paramter\d*\s*}}', '', value)
+                value = re.sub(r'{{\s*parameter\d*\s*}}', '', value)
 
             oldfuncs = self._guest_old_function_name()
             if len(oldfuncs) == 1:
