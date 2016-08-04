@@ -69,7 +69,7 @@ define(function(require, exports, module) {
                             clearbutton: true,
                             focusselect: true,
                             height: 27,
-                            width: 480,
+                            width: 240,
                             singleline: true,
                             "initial-message": "Search"
                         }),
