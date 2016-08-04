@@ -30,7 +30,11 @@ print "%s|IS_ERR" % fn
 identifier fn, ret;
 position p2;
 @@
+(
 int ret;
+|
+bool ret;
+)
 ...
 ret = fn@p2(...);
 

@@ -26,7 +26,6 @@ import subprocess
 import json
 
 from misc import is_source_file, _execute_shell
-from celery.utils.text import indent
 
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 DATAFILE = os.path.join(ROOT_DIR, 'data/fuzz_ret_chk_list.txt')
@@ -211,7 +210,8 @@ def main(args):
         "reiserfs_get_acl": "IS_ERR_OR_NULL",
         "xfs_get_acl": "IS_ERR_OR_NULL",
         "pci_device_group": "IS_ERR_OR_NULL",
-        "assoc_array_delete": "IS_ERR_OR_NULL"
+        "assoc_array_delete": "IS_ERR_OR_NULL",
+        "d_splice_alias": "IS_ERR_OR_NULL"
     }
 
     if not os.path.exists(DATAFILE):
