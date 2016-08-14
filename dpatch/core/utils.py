@@ -116,6 +116,8 @@ def is_white_black_list(wblist, sfile):
 
     try:
         alist = json.loads(wblist)
+        if sfile in alist:
+            return True
         for p in alist:
             if re.match(p, sfile) or sfile == p:
                 return True

@@ -25,6 +25,7 @@ import time
 import django
 import re
 import datetime
+import json
 
 django.setup()
 
@@ -102,6 +103,13 @@ def check_patch(task, detector):
     # source file maybe removed
     if not os.path.exists(detector._get_file_path()):
         detector.debug("file removed")
+        for p in rpatchs:
+            p.status = Patch.PATCH_STATUS_REMOVED
+            p.save()
+        return False
+
+    if is_white_black_list(task.type.excludes, task.filename):
+        INFO("skip exclude list file %s" % task.filename)
         for p in rpatchs:
             p.status = Patch.PATCH_STATUS_REMOVED
             p.save()
@@ -193,6 +201,13 @@ def check_report(task, detector):
     # source file maybe removed
     if not os.path.exists(detector._get_file_path()):
         detector.debug("file removed")
+        for p in oreports:
+            p.status = Patch.PATCH_STATUS_REMOVED
+            p.save()
+        return False
+
+    if is_white_black_list(task.type.excludes, task.filename):
+        INFO("skip exclude list file %s" % task.filename)
         for p in oreports:
             p.status = Patch.PATCH_STATUS_REMOVED
             p.save()

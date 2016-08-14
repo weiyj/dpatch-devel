@@ -440,8 +440,8 @@ class PatchFormater(object):
                 elif len(params) > 1:
                     value = re.sub(r'{{\s*parameter\s*}}', params[0], value)
                     value = re.sub(r'{{\s*parameter1\s*}}', params[0], value)
-                    value = re.sub(r'{{\s*parameter2\s*}}', params[0], value)
-                    value = re.sub(r'{{\s*parameter3\s*}}', params[0], value)
+                    value = re.sub(r'{{\s*parameter2\s*}}', params[1], value)
+                    value = re.sub(r'{{\s*parameter3\s*}}', params[2], value)
 
                 value = re.sub(r'{{\s*parameter\d*\s*}}', '', value)
 
