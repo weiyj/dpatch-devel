@@ -47,10 +47,15 @@ define(function(require, exports, module) {
             menus.addItemByPath("Edit/Patch/Move to Rejected Status", new ui.item({
                 command: "patchSetStatusRejected"}), 800, handle);
             menus.addItemByPath("Edit/Patch/~", new ui.divider(), 900, handle);
+            menus.addItemByPath("Edit/Patch/Move to Latest Tree", new ui.item({
+                command: "patchSetRepoLatest"}), 901, handle);
+            menus.addItemByPath("Edit/Patch/Move to Dev Tree", new ui.item({
+                command: "patchSetRepoNext"}), 902, handle);
+            menus.addItemByPath("Edit/Patch/~", new ui.divider(), 1000, handle);
             menus.addItemByPath("Edit/Patch/Merger Patchs", new ui.item({
-                command: "patchMergerPatchs"}), 1000, handle);
+                command: "patchMergerPatchs"}), 1100, handle);
             menus.addItemByPath("Edit/Patch/UnMerger Patch", new ui.item({
-                command: "patchUnMergerPatch"}), 1100, handle);
+                command: "patchUnMergerPatch"}), 1200, handle);
         }
 
         function setCommands() {
@@ -119,6 +124,24 @@ define(function(require, exports, module) {
                 isAvailable: function(editor){ return checkAvailable(editor, "rejected"); },
                 exec: function() {
                     tabs.focussedTab.editor.movePatchToRejected();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSetRepoLatest",
+                isAvailable: function(editor){ return checkAvailable(editor, "repolatest"); },
+                exec: function() {
+                    tabs.focussedTab.editor.movePatchToRepoLatest();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSetRepoNext",
+                isAvailable: function(editor){ return checkAvailable(editor, "reponext"); },
+                exec: function() {
+                    tabs.focussedTab.editor.movePatchToRepoNext();
                 },
                 passEvent: true
             }, handle);
@@ -599,6 +622,40 @@ define(function(require, exports, module) {
                 });
             }
 
+            function movePatchToRepoLatest() {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return;
+
+                patch.patchs.put('latest/' + item.id + '/', {
+                    "body": JSON.stringify({'id': item.id})
+                }, function (err, data, res) {
+                    if (!err) {
+                        updatePatchList(currentDocument);
+                    } else {
+                        showError("Failed to save move patch latest");
+                    }
+                });
+            }
+
+            function movePatchToRepoNext() {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return;
+
+                patch.patchs.put('next/' + item.id + '/', {
+                    "body": JSON.stringify({'id': item.id})
+                }, function (err, data, res) {
+                    if (!err) {
+                        updatePatchList(currentDocument);
+                    } else {
+                        showError("Failed to save move patch next");
+                    }
+                });
+            }
+
             function sendPatchWizard() {
                 var item = datagrid.selection.getCursor();
 
@@ -666,6 +723,16 @@ define(function(require, exports, module) {
                         return true;
                     else
                         return false;
+                } else if (action == "repolatest") {
+                    if (item.repo == "linux-next.git")
+                        return true;
+                    else
+                        return false;
+                } else if (action == "reponext") {
+                    if (item.repo == "linux.git")
+                        return true;
+                    else
+                        return false;
                 }
             }
 
@@ -698,6 +765,8 @@ define(function(require, exports, module) {
                 movePatchToAccepted: movePatchToAccepted,
                 movePatchToRejected: movePatchToRejected,
                 movePatchToWhiteList: movePatchToWhiteList,
+                movePatchToRepoLatest: movePatchToRepoLatest,
+                movePatchToRepoNext: movePatchToRepoNext,
                 sendPatchWizard: sendPatchWizard
             });
 

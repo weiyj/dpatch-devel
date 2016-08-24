@@ -25,6 +25,7 @@ from django.conf.urls import url
 from .views import DefectPatchViewSet, PendingPatchViewSet, ArchivePatchViewSet, PatchContentViewSet
 from .views import PatchViewSet, PatchTagViewSet, PatchSendWizardView
 from .views import PatchFileView, PatchChangelogView, PatchWhiteListView
+from .views import PatchRepoLatestView, PatchRepoNextView
 
 router = DefaultRouter()
 router.register(r'patch/patches', PatchViewSet)
@@ -37,6 +38,8 @@ router.register(r'patch/content', PatchContentViewSet)
 urlpatterns = router.urls
 
 urlpatterns += [
+    url(r'^patch/latest/(?P<id>.+)/$', PatchRepoLatestView.as_view()),
+    url(r'^patch/next/(?P<id>.+)/$', PatchRepoNextView.as_view()),
     url(r'^patch/file/(?P<id>.+)/$', PatchFileView.as_view()),
     url(r'^patch/changelog/(?P<id>.+)/$', PatchChangelogView.as_view()),
     url(r'^patch/whitelist/(?P<id>.+)/$', PatchWhiteListView.as_view()),
