@@ -49,8 +49,10 @@ define(function(require, exports, module) {
             menus.addItemByPath("Edit/Patch/~", new ui.divider(), 900, handle);
             menus.addItemByPath("Edit/Patch/Move to Latest Tree", new ui.item({
                 command: "patchSetRepoLatest"}), 901, handle);
+            menus.addItemByPath("Edit/Patch/Move to Stable Tree", new ui.item({
+                command: "patchSetRepoStable"}), 902, handle);
             menus.addItemByPath("Edit/Patch/Move to Dev Tree", new ui.item({
-                command: "patchSetRepoNext"}), 902, handle);
+                command: "patchSetRepoNext"}), 903, handle);
             menus.addItemByPath("Edit/Patch/~", new ui.divider(), 1000, handle);
             menus.addItemByPath("Edit/Patch/Merger Patchs", new ui.item({
                 command: "patchMergerPatchs"}), 1100, handle);
@@ -133,6 +135,15 @@ define(function(require, exports, module) {
                 isAvailable: function(editor){ return checkAvailable(editor, "repolatest"); },
                 exec: function() {
                     tabs.focussedTab.editor.movePatchToRepoLatest();
+                },
+                passEvent: true
+            }, handle);
+
+            commands.addCommand({
+                name: "patchSetRepoStable",
+                isAvailable: function(editor){ return checkAvailable(editor, "repostable"); },
+                exec: function() {
+                    tabs.focussedTab.editor.movePatchToRepoStable();
                 },
                 passEvent: true
             }, handle);
@@ -639,6 +650,23 @@ define(function(require, exports, module) {
                 });
             }
 
+            function movePatchToRepoStable() {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return;
+
+                patch.patchs.put('stable/' + item.id + '/', {
+                    "body": JSON.stringify({'id': item.id})
+                }, function (err, data, res) {
+                    if (!err) {
+                        updatePatchList(currentDocument);
+                    } else {
+                        showError("Failed to save move patch stable");
+                    }
+                });
+            }
+
             function movePatchToRepoNext() {
                 var item = datagrid.selection.getCursor();
 
@@ -728,6 +756,8 @@ define(function(require, exports, module) {
                         return true;
                     else
                         return false;
+                } else if (action == "repostable") {
+                    return true;
                 } else if (action == "reponext") {
                     if (item.repo == "linux.git")
                         return true;
@@ -766,6 +796,7 @@ define(function(require, exports, module) {
                 movePatchToRejected: movePatchToRejected,
                 movePatchToWhiteList: movePatchToWhiteList,
                 movePatchToRepoLatest: movePatchToRepoLatest,
+                movePatchToRepoStable: movePatchToRepoStable,
                 movePatchToRepoNext: movePatchToRepoNext,
                 sendPatchWizard: sendPatchWizard
             });

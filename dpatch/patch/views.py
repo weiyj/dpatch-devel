@@ -618,6 +618,35 @@ class PatchRepoLatestView(APIView):
                 'detail': 'Not found.'
             }, status=status.HTTP_404_NOT_FOUND)
 
+        ntag = RepositoryTag.objects.filter(repo__name = patch.tag.repo.name).order_by("-id")
+        if len(ntag) == 0:
+            return Response({
+                'code': 1,
+                'detail': 'linux.git Not found.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        patch.tag.total = F('total') - 1
+        patch.tag.save()
+        patch.tag = ntag[0]
+        patch.save()
+        patch.tag.total = F('total') + 1
+        patch.tag.save()
+
+        return Response({
+            'id': patch.id,
+            'detail': 'success'
+        }, status=status.HTTP_200_OK)
+
+class PatchRepoStableView(APIView):
+    def put(self, request, id):
+        try:
+            patch = Patch.objects.get(type__user=self.request.user, id=id)
+        except:
+            return Response({
+                'code': 1,
+                'detail': 'Not found.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
         ntag = RepositoryTag.objects.filter(repo__name = 'linux.git').order_by("-id")
         if len(ntag) == 0:
             return Response({
