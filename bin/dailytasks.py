@@ -549,6 +549,11 @@ def should_build_sparse(patch):
         return True
     return False
 
+def should_build_module(patch):
+    if patch.type.flags & PatchType.TYPE_FLAG_BUILD_MODULE:
+        return True
+    return False
+
 def do_task_build():
     patchs = Patch.objects.filter(status=Patch.PATCH_STATUS_PATCH, build=0)[:5]
 
@@ -595,6 +600,21 @@ def do_task_build():
                 ret, log = execute_shell_unicode("cd %s; make C=2 M=%s" % (repo.builddir(), dname))
                 buildlog += log
                 buildlog += '\n'
+
+        if should_build_module(patch):
+            dname = os.path.dirname(patch.file)
+            if len(dname.split(os.sep)) > 1:
+                buildlog += '# make M=%s\n' % dname
+                ret, log = execute_shell_unicode("cd %s; make M=%s" % (repo.builddir(), dname))
+                buildlog += log
+                buildlog += '\n'
+
+                modfile = "%s.ko" % patch.file[:-2]
+                if os.path.exists(os.path.join(repo.builddir(), modfile)):
+                    buildlog += '# modinfo %s | grep alias\n' % modfile
+                    ret, log = execute_shell_unicode("cd %s; modinfo %s | grep alias" % (repo.builddir(), modfile))
+                    buildlog += log
+                    buildlog += '\n'
 
         ret, log = execute_shell_unicode("cd %s; git am %s" % (repo.builddir(), fname))
         buildlog += '# git am %s\n' % os.path.basename(fname)
@@ -689,6 +709,21 @@ def do_task_build():
                 ret, log = execute_shell_unicode("cd %s; make C=2 M=%s" % (repo.builddir(), dname))
                 buildlog += log
                 buildlog += '\n'
+
+        if should_build_module(patch):
+            dname = os.path.dirname(patch.file)
+            if len(dname.split(os.sep)) > 1:
+                buildlog += '# make M=%s\n' % dname
+                ret, log = execute_shell_unicode("cd %s; make M=%s" % (repo.builddir(), dname))
+                buildlog += log
+                buildlog += '\n'
+
+                modfile = "%s.ko" % patch.file[:-2]
+                if os.path.exists(os.path.join(repo.builddir(), modfile)):
+                    buildlog += '# modinfo %s | grep alias\n' % modfile
+                    ret, log = execute_shell_unicode("cd %s; modinfo %s | grep alias" % (repo.builddir(), modfile))
+                    buildlog += log
+                    buildlog += '\n'
 
         execute_shell("cd %s; git reset --hard %s" % (patch.tag.repo.builddir(), commit))
         if buildlog.find(' Error ') != -1:
