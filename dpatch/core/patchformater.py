@@ -532,7 +532,7 @@ class PatchFormater(object):
             title = title[0].upper() + title[1:]
         if title.find('[PATCH') != -1:
             return title
-        elif target == 'linux':
+        elif target == 'linux' or target == 'net':
             return '[PATCH] %s%s %s' % (self._module, seq, title)            
         elif target == 'linux-next':
             return '[PATCH -next] %s%s %s' % (self._module, seq, title)

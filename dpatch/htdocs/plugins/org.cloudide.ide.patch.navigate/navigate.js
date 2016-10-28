@@ -1,13 +1,15 @@
 define(function(require, exports, module) {
     main.consumes = ["Panel", "ui", "layout", "patch", "app", "dialog.error",
-                     "tabManager"];
+                     "tabManager", "preferences", "preferences.project", "settings"];
     main.provides = ["patch.navigate"];
     return main;
 
     function main(options, imports, register) {
         var Panel = imports.Panel;
         var layout = imports.layout;
+        var settings = imports.settings;
         var ui = imports.ui;
+        var prefs = imports.preferences;
         var patch = imports.patch;
         var app = imports.app;
         var showError = imports["dialog.error"].show;
@@ -32,11 +34,38 @@ define(function(require, exports, module) {
         var lastSearch;
 
         var arrayCache = [];
+        var cacheRows = 12;
+
+        function setPreferences(){
+            prefs.add({
+                "Project" : {
+                    position: 400,
+                    "Patch Navigate" : {
+                        position: 200,
+                        "Show Row Size" : {
+                            type: "spinner",
+                            path: "state/patch/nav/@rows",
+                            min: "6",
+                            max: "120",
+                            position: 100
+                        },
+                    }
+                }
+            }, plugin);
+        }
 
         var loaded = false;
         function load(){
             if (loaded) return false;
             loaded = true;
+
+            settings.on("read", function(e) {
+                settings.setDefaults("state/patch/nav", [["rows", "12"]]);
+                cacheRows = settings.getNumber("state/patch/nav/@rows");
+            }, plugin);
+
+
+            setPreferences();
 
             app.once("ready", function(){ tree && tree.resize(); });
         }
@@ -46,6 +75,11 @@ define(function(require, exports, module) {
             if (drawn) return;
             drawn = true;
             
+            settings.on("state/patch/nav", function(e) {
+                cacheRows = settings.getNumber("state/patch/nav/@rows");
+                updateTagsList();
+            }, plugin);
+
             // Create UI elements
             ui.insertMarkup(options.aml, markup, plugin);
             
@@ -101,6 +135,8 @@ define(function(require, exports, module) {
         		} else {
                 	arrayCache = [];
                 	for (var idx in data) {
+                		if (idx >= cacheRows)
+                			break;
                 		arrayCache.push(formatTag(data[idx]));
                 	}
 
