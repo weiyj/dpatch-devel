@@ -32,6 +32,12 @@ class PatchEngineAdmin(admin.ModelAdmin):
     )
 
 class PatchTypeAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(PatchTypeAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+
     list_display = (
         'id',
         'name',

@@ -48,6 +48,8 @@ class PatchEngineViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         queryset = PatchEngine.objects.all()
+        for engine in queryset:
+            engine.total = PatchType.objects.filter(user=request.user, engine=engine).count()
         serializer = PatchEngineSerializer(queryset, many=True)
         return Response(serializer.data)
 

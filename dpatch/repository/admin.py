@@ -23,6 +23,12 @@ from django.contrib import admin
 from .models import Repository, RepositoryTag, RepositoryHistory, FileModule, FileChecksum
 
 class RepositoryAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(RepositoryAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+
     list_display = (
         'id',
         'name',
@@ -41,6 +47,12 @@ class RepositoryAdmin(admin.ModelAdmin):
     )
 
 class RepositoryTagAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(RepositoryTagAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(repo__user=request.user)
+
     list_display = (
         'id',
         'repo',
@@ -51,6 +63,12 @@ class RepositoryTagAdmin(admin.ModelAdmin):
     )
 
 class RepositoryHistoryAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(RepositoryHistoryAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(repo__user=request.user)
+
     list_display = (
         'id',
         'repo',
@@ -63,6 +81,12 @@ class RepositoryHistoryAdmin(admin.ModelAdmin):
     )
 
 class FileModuleAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(FileModuleAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(repo__user=request.user)
+
     list_display = (
         'id',
         'name',
@@ -71,6 +95,12 @@ class FileModuleAdmin(admin.ModelAdmin):
     )
 
 class FileChecksumAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(FileChecksumAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(repo__user=request.user)
+
     list_display = (
         'id',
         'file',

@@ -23,6 +23,12 @@ from django.contrib import admin
 from .models import SMTPServer, POPServer
 
 class SMTPServerAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(SMTPServerAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+
     list_display = (
         'id',
         'active',
@@ -36,6 +42,12 @@ class SMTPServerAdmin(admin.ModelAdmin):
     )
 
 class POPServerAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(POPServerAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+
     list_display = (
         'id',
         'active',

@@ -23,6 +23,12 @@ from django.contrib import admin
 from .models import Patch
 
 class PatchAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(PatchAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(type__user=request.user)
+
     list_display = (
         'id',
         'tag',
