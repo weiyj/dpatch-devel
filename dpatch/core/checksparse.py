@@ -92,10 +92,10 @@ class CheckSparseEngine(PatchEngine):
 
         if _cnt['symbol'] == _cnt['total']:
             title = 'fix non static symbol warning'
-            #if _cnt['total'] > 1:
-            #    title = 'make local symbols static'
-            #else:
-            #    title = 'make local symbol static'
+            if _cnt['total'] > 1:
+                title = 'make some symbols static'
+            else:
+                title = 'make local symbol static'
         elif _cnt['unused'] == _cnt['total']:
             title = 'fix unused variable warning'
             #if _cnt['total'] > 1:
@@ -117,7 +117,7 @@ class CheckSparseEngine(PatchEngine):
             title = 'fix return pointer different address spaces warning'
         # fix sparse endianness warnings
 
-        if _cnt['total'] > 1:
+        if _cnt['total'] > 1 and _cnt['symbol'] != _cnt['total']:
             title += 's'
 
         #if self._recheck is True:

@@ -106,7 +106,7 @@ def commit_url(url, commit):
         _weburl = "%s/commit/%s" % (_weburl, commit)
         _weburl = re.sub("git://", "https://", _weburl)
     else:
-        _weburl = "%s;a=commit;h=%s" % (url, commit)
+        _weburl = "%s/commit/?id=%s" % (url, commit)
         _weburl = re.sub("git://git.kernel.org/pub/scm/", "http://git.kernel.org/?p=", _weburl)
     return _weburl
 

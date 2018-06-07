@@ -122,6 +122,7 @@ class GitRepository(object):
                 self._stable = self.get_stable()
             self.reset(self._stable)
         execute_shell('cd %s; git pull' % self._path)
+        execute_shell('cd %s; make allmodconfig' % self._path)
 
     def diff(self, scommit, ecommit):
         return execute_shell('cd %s; git diff --name-only %s...%s' % (self._path, scommit, ecommit))

@@ -752,14 +752,14 @@ define(function(require, exports, module) {
                     else
                         return false;
                 } else if (action == "repolatest") {
-                    if (item.repo == "linux-next.git")
+                    return true;
+                } else if (action == "repostable") {
+                    if (item.repo == "linux-next.git" || item.repo == "net-next.git")
                         return true;
                     else
                         return false;
-                } else if (action == "repostable") {
-                    return true;
                 } else if (action == "reponext") {
-                    if (item.repo == "linux.git")
+                    if (item.repo == "linux.git" || item.repo == "net.git")
                         return true;
                     else
                         return false;

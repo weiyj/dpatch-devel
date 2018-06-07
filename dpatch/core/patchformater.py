@@ -66,36 +66,39 @@ class PatchFormater(object):
         module = ''
         capcnt = 0
         total = 0
-        for m in lists:
-            if m.find(":") != -1:
-                if re.match('\w+\s*:\s*\w+\s*- ', m):
-                    mname = re.match('\w+\s*:\s*\w+\s*-', m).group(0).strip()
-                else:
-                    mname = re.sub(':[^:]*$', "", m).strip()
-                # start with 'Merge ....'
-                if mname.find('Merge ') != -1:
-                    continue
-                if len(mname) == 0:
-                    continue
-                _ptitle = m.replace(mname, '')[1:].strip()
-                if _ptitle[0] == _ptitle[0].upper():
-                    capcnt += 1
-                total += 1
-                if module.find("%s:" % mname) != -1:
-                    continue
-                if modules.has_key(mname):
-                    modules[mname] += 1
-                    if mcount < modules[mname]:
-                        mcount = modules[mname]
-                        module = mname
-                    elif mname.find("%s:" % module) != -1:
-                        # make sure 'module: submodule:' exists at least twice
-                        mcount = modules[mname]
-                        module = mname
-                else:
-                    modules[mname] = 1
-                    if module == '':
-                        module = mname
+        try:
+            for m in lists:
+                if m.find(":") != -1:
+                    if re.match('\w+\s*:\s*\w+\s*- ', m):
+                        mname = re.match('\w+\s*:\s*\w+\s*-', m).group(0).strip()
+                    else:
+                        mname = re.sub(':[^:]*$', "", m).strip()
+                    # start with 'Merge ....'
+                    if mname.find('Merge ') != -1:
+                        continue
+                    if len(mname) == 0:
+                        continue
+                    _ptitle = m.replace(mname, '')[1:].strip()
+                    if _ptitle[0] == _ptitle[0].upper():
+                        capcnt += 1
+                    total += 1
+                    if module.find("%s:" % mname) != -1:
+                        continue
+                    if modules.has_key(mname):
+                        modules[mname] += 1
+                        if mcount < modules[mname]:
+                            mcount = modules[mname]
+                            module = mname
+                        elif mname.find("%s:" % module) != -1:
+                            # make sure 'module: submodule:' exists at least twice
+                            mcount = modules[mname]
+                            module = mname
+                    else:
+                        modules[mname] = 1
+                        if module == '':
+                            module = mname
+        except:
+            pass
 
         if len(module) == 0:
             module = self._dirname()
@@ -148,6 +151,9 @@ class PatchFormater(object):
 
         if nolkml == True and skiplkml == True:
             mailcc.append('linux-kernel@vger.kernel.org')
+
+        # always send to kernel-janitors to avoid duplicates
+        mailcc.append('kernel-janitors@vger.kernel.org')
 
         for rml in _re_list:
             for cc in rml['cc']:
@@ -441,7 +447,8 @@ class PatchFormater(object):
                     value = re.sub(r'{{\s*parameter\s*}}', params[0], value)
                     value = re.sub(r'{{\s*parameter1\s*}}', params[0], value)
                     value = re.sub(r'{{\s*parameter2\s*}}', params[1], value)
-                    value = re.sub(r'{{\s*parameter3\s*}}', params[2], value)
+                    if len(params) > 2:
+                        value = re.sub(r'{{\s*parameter3\s*}}', params[2], value)
 
                 value = re.sub(r'{{\s*parameter\d*\s*}}', '', value)
 
@@ -562,7 +569,10 @@ class PatchFormater(object):
             if len(mnames) != 0:
                 self._module = mnames[0].name
                 return self._module
-        return self._guest_module_name()
+        try:
+            return self._guest_module_name()
+        except:
+            return "NONE"
 
     def format_patch(self):
         self.get_module()
