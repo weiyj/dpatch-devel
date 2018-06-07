@@ -340,7 +340,7 @@ def do_check_patch_applied(patch):
     ptitle = re.sub('^.*:', '', ptitle).strip()
     if len(ptitle) > 2:
         ptitle = ptitle[1:]
-    cmds = 'cd %s; git log --author="%s" --pretty="format:%%H|%%s" %s' % (patch.tag.repo.dirname(), patch.username(), patch.file)
+    cmds = 'cd %s; git log --author="%s" --pretty="format:%%H|%%s" %s' % (patch.tag.repo.dirname(), patch.email(), patch.file)
     for line in execute_shell_full(cmds)[::-1]:
         if line.find('|') == -1:
             continue
