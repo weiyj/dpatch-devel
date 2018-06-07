@@ -282,6 +282,68 @@ class CoccinelleFileView(APIView):
             'content': ptype.content
         }, status=status.HTTP_200_OK)
 
+    def _add_coccinelle_defined(self, user, content):
+        parser = CocciParser(content.split('\n'))
+        parser.parser()
+
+        name = parser.get_name()
+        if len(name) == 0:
+            return Response({
+                'detail:' : 'bad name field'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if PatchType.objects.filter(user=user, name=name).count():
+            return Response({
+                'detail:' : 'exist name field'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        title = parser.get_title()
+        if len(title) == 0:
+            return Response({
+                'detail:' : 'bad title field'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        description = parser.get_description()
+        if len(description) == 0:
+            return Response({
+                'detail:' : 'bad description field'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        content = parser.get_content()
+        if len(content) == 0:
+            return Response({
+                'detail:' : 'bad content field'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            engine = PatchEngine.objects.get(name='checkcoccinelle')
+            fname = "%s.cocci" % name
+            fixed = parser.get_fixed()
+            options = parser.get_options()
+            efiles = parser.get_efiles()
+            flags = parser.get_flags()
+
+            ptype = PatchType(engine = engine, user = user, name = name,
+                      filename = fname, title = title,
+                      description = description, content = content,
+                      options = options, fixed = fixed,
+                      excludes = json.dumps(efiles))
+
+            ptype.save()
+
+            with open(ptype.fullpath(), "w") as fp:
+                fp.write(content)
+
+            return Response({
+                'id': ptype.id,
+                'filename': ptype.filename,
+                'content': ptype.content
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                'detail:' : 'unknow error' + str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
     def put(self, request, id):
         user = self.request.user
         try:
@@ -299,6 +361,13 @@ class CoccinelleFileView(APIView):
             return self._update_coccinelle_kernel(ptype, request.data['content'])
         else:
             return self._update_coccinelle_defined(ptype, request.data['content'])
+
+    def post(self, request, id=None):
+        user = self.request.user
+        if 'content' not in request.data:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return self._add_coccinelle_defined(user, request.data['content'])
 
 class CoccinelleFileExportViewSet(mixins.ListModelMixin,
                                   mixins.RetrieveModelMixin,

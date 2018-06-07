@@ -22,6 +22,7 @@
 class CocciParser(object):
     def __init__(self, lines):
         self._lines = lines
+        self._name = ''
         self._title = ''
         self._fixed = ''
         self._options = ''
@@ -57,6 +58,10 @@ class CocciParser(object):
                     exceptfile = exceptfile.replace('/// Except File:', '').strip()
                     efileinfo = exceptfile.split(':')
                     self._efiles.append(efileinfo[0].strip())
+                elif line.find('/// Name:') == 0:
+                    self._name = line
+                    self._name = self._name.replace('/// Name:', '').strip()
+                    self._name = self._name.replace('.cocci', '')
                 else:
                     descline = line
                     descline = descline.replace('///', '').strip()
@@ -84,6 +89,9 @@ class CocciParser(object):
 
         self._desc = '\n'.join(desc)
         self._content = '\n'.join(self._lines)
+
+    def get_name(self):
+        return self._name
 
     def get_title(self):
         return self._title

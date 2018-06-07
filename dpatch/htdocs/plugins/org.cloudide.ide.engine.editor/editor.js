@@ -77,13 +77,14 @@ define(function(require, exports, module) {
                         btnTypeNew = new ui.button({
                             skin: "btn-default-css3",
                             class: "btn-green",
-                            caption: "New"
+                            caption: "New",
+                            onclick: newPatchType
                         }),
-                        btnTypeImport = new ui.button({
+                        /*btnTypeImport = new ui.button({
                             skin: "btn-default-css3",
                             class: "btn-green",
                             caption: "Import"
-                        }),
+                        }),*/
                         btnTypeExport = new ui.button({
                             skin: "btn-default-css3",
                             caption: "Export",
@@ -99,6 +100,11 @@ define(function(require, exports, module) {
                             skin: "btn-default-css3",
                             caption: "Edit",
                             onclick: editPatchType
+                        }),
+                        btnTypeReport = new ui.button({
+                            skin: "btn-default-css3",
+                            caption: "Patch",
+                            onclick: changePatchReport
                         }),
                         btnTypeBugFix = new ui.button({
                             skin: "btn-default-css3",
@@ -180,13 +186,13 @@ define(function(require, exports, module) {
 
                     if (item.engine == 'checkcoccinelle') {
                     	btnTypeNew.enable();
-                    	btnTypeImport.enable();
+                    	//btnTypeImport.enable();
                     	btnTypeExport.enable();
                     	btnTypeEdit.enable();
                     	btnTypeBugFix.enable();
                     } else {
                     	btnTypeNew.disable();
-                    	btnTypeImport.disable();
+                    	//btnTypeImport.disable();
                     	btnTypeExport.disable();
                     	btnTypeEdit.disable();
                     	btnTypeBugFix.disable();
@@ -204,6 +210,12 @@ define(function(require, exports, module) {
                     	btnTypeBugFix.setCaption("Cleanup");
                     } else {
                     	btnTypeBugFix.setCaption("Bug Fix");
+                    }
+
+                    if (item.reportonly == true) {
+                    	btnTypeReport.setCaption("Patch");
+                    } else {
+                    	btnTypeReport.setCaption("Report");
                     }
 
                     emit("changeSelection", { node : item });
@@ -254,6 +266,7 @@ define(function(require, exports, module) {
                         model.setRoot({children : data});
                         datagrid.resize();
                         datagrid.select(datagrid.provider.getNodeAtIndex(0));
+                    	btnTypeNew.enable();
                     }
                 });
             }
@@ -270,6 +283,23 @@ define(function(require, exports, module) {
                 	updateSparseTypeList(doc);
                 else
                 	updateCocciTypeList(doc);
+            }
+
+            function changePatchReport() {
+                var item = datagrid.selection.getCursor();
+
+                if (!item)
+                    return;
+
+                engine.engines.put('types/' + item.id + '/', {
+                    "body": JSON.stringify({'id': item.id, 'reportonly': !item.reportonly})
+                }, function (err, data, res) {
+                    if (!err) {
+                        updatePatchTypeList(currentDocument);
+                    } else {
+                        showError("Failed to move patch to report");
+                    }
+                });
             }
 
             function changePatchTypeBugfix() {
@@ -336,6 +366,34 @@ define(function(require, exports, module) {
                         });
                     }
                 );
+            }
+
+            function newPatchType() {
+                if (currentDocument.meta.eid <= 2)
+                    return;
+
+                var fn = function() {};
+                var sample = "/// this is patch title line\n" +
+			     "///\n" +
+			     "/// Name: sample.cocci\n" +
+			     "///\n" +
+			     "/// The rest are patch desctiption lines, which can be\n" +
+			     "/// multi-lines.\n" +
+			     "///\n" +
+			     "\n" +
+			     "@@\n" +
+			     "expression e,e1;\n" +
+			     "@@\n" +
+			     "* e ? e1 : e1\n";
+
+                tabs.open({
+                     patchid: "new",
+                     path: "undef.cocci",
+                     tabtype: "checkcoccinelle",
+                     nofs: 1,
+                     active: true,
+                     value: sample,
+                },fn);
             }
 
             function editPatchType() {

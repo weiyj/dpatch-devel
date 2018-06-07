@@ -89,6 +89,19 @@ define(function(require, exports, module) {
         	});
         }
 
+        function newCocciScript(tab, value) {
+        	engine.engines.post('coccinelle/file/0/', {
+		    	"body": JSON.stringify({'content': value})
+        	}, function (err, data, res) {
+        		if (err) {
+                  	showError("Failed to save coccinelle script");
+        		} else {
+                  	showError("Success to save coccinelle script");
+                  	tab.close();
+        		}
+        	});
+        }
+
         function save(tab, options, callback) {
             if (!tab && !(tab = tabManager.focussedTab)) {
                 return;
@@ -104,9 +117,12 @@ define(function(require, exports, module) {
             	savePatch(tab, tab.options.patchid, doc.value)
             else if (tab.options.tabtype == 'file')
             	saveFile(tab, tab.options.patchid, doc.value)
-            else if (tab.options.tabtype == 'checkcoccinelle')
-            	saveCocciScript(tab, tab.options.patchid, doc.value)
-            else
+            else if (tab.options.tabtype == 'checkcoccinelle') {
+                if (tab.options.patchid == 'new')
+            	    newCocciScript(tab, doc.value)
+                else
+            	    saveCocciScript(tab, tab.options.patchid, doc.value)
+            } else
             	console.log('unknow type' + tab.options.tabtype);
         }
         /***** Lifecycle *****/
