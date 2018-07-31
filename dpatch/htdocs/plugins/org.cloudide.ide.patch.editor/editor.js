@@ -223,7 +223,7 @@ define(function(require, exports, module) {
                             skin: "btn-default-css3",
                             caption: "Delete",
                             class: "btn-red",
-                            onclick: deleteSelectedPatch
+                            onclick: deleteSelectedPatchset
                         }),
                         btnPatchEdit = new ui.button({
                             skin: "btn-default-css3",
@@ -436,6 +436,30 @@ define(function(require, exports, module) {
                             } else {
                                 showError("Failed to delete patch");
                             }
+                        });
+                    }
+                );
+            }
+
+            function deleteSelectedPatchset() {
+                var items = datagrid.selection.getSelectedNodes();
+                
+                if (!items || !items.length)
+                    return;
+
+                confirm("Delete Patchset", "Are you sure to Delete this patch?",
+                    items[0].title,
+                    function() {
+                        var count = 0;
+                        items.forEach(function (item, index) {
+                            patch.patchs.delete('patches/' + item.id + '/', {
+                                "body": JSON.stringify({'id': item.id})
+                            }, function (err, data, res) {
+                                if (err)
+                                    showError("Failed to delete patch");
+                                if (++count == items.length)
+                                    updatePatchList(currentDocument);
+                            });
                         });
                     }
                 );

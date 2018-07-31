@@ -618,7 +618,7 @@ class PatchRepoLatestView(APIView):
                 'detail': 'Not found.'
             }, status=status.HTTP_404_NOT_FOUND)
 
-        ntag = RepositoryTag.objects.filter(repo__name = patch.tag.repo.name).order_by("-id")
+        ntag = RepositoryTag.objects.filter(repo__name = patch.tag.repo.name,repo__user=self.request.user).order_by("-id")
         if len(ntag) == 0:
             return Response({
                 'code': 1,
@@ -647,7 +647,7 @@ class PatchRepoStableView(APIView):
                 'detail': 'Not found.'
             }, status=status.HTTP_404_NOT_FOUND)
 
-        ntag = RepositoryTag.objects.filter(repo__name = 'linux.git').order_by("-id")
+        ntag = RepositoryTag.objects.filter(repo__devel=patch.tag.repo.name,repo__user=self.request.user).order_by("-id")
         if len(ntag) == 0:
             return Response({
                 'code': 1,
@@ -676,7 +676,7 @@ class PatchRepoNextView(APIView):
                 'detail': 'Not found.'
             }, status=status.HTTP_404_NOT_FOUND)
 
-        ntag = RepositoryTag.objects.filter(repo__name = 'linux-next.git').order_by("-id")
+        ntag = RepositoryTag.objects.filter(repo__name=patch.tag.repo.devel,repo__user=self.request.user).order_by("-id")
         if len(ntag) == 0:
             return Response({
                 'code': 1,

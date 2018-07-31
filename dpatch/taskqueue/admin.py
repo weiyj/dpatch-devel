@@ -24,6 +24,12 @@ from django.contrib import admin
 from .models import ScanTaskQueue, StatusTaskQueue
 
 class ScanTaskQueueAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(ScanTaskQueueAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(type__user=request.user)
+
     list_display = (
         'id',
         'status',
@@ -41,6 +47,12 @@ class ScanTaskQueueAdmin(admin.ModelAdmin):
     )
 
 class StatusTaskQueueAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(StatusTaskQueueAdmi, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(patch__type__user=request.user)
+
     list_display = (
         'id',
         'status',
