@@ -254,6 +254,22 @@ define(function(require, exports, module) {
                 });
             }
 
+            function updateBuildTypeList(doc) {
+                engine.engines.get('builds/', {}, function (err, data, res) {
+                    if (err) {
+                        showError("Failed to get checkbuild list");
+                    } else {
+                        doc.value = data;
+                        for (var idx in data) {
+                            model.formatRowData(data[idx]);
+                        }
+                        model.setRoot({children : data});
+                        datagrid.resize();
+                        datagrid.select(datagrid.provider.getNodeAtIndex(0));
+                    }
+                });
+            }
+
             function updateCocciTypeList(doc) {
                 engine.engines.get('coccinelles/', {}, function (err, data, res) {
                     if (err) {
@@ -281,7 +297,9 @@ define(function(require, exports, module) {
                 	updateIncludeTypeList(doc);
                 else if (eid == 2)
                 	updateSparseTypeList(doc);
-                else
+                else if (eid == 4)
+                	updateBuildTypeList(doc);
+		else
                 	updateCocciTypeList(doc);
             }
 

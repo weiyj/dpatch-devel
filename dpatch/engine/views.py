@@ -41,6 +41,7 @@ from .models import PatchEngine, PatchType
 ENGINE_INCLUDE = 1
 ENGINE_SPARSE = 2
 ENGINE_COCCINELLE = 3
+ENGINE_BUILD = 4
 
 class PatchEngineViewSet(viewsets.ModelViewSet):
     queryset = PatchEngine.objects.all()
@@ -159,6 +160,19 @@ class SparseTypeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return PatchType.objects.filter(user=user, engine__id=ENGINE_SPARSE)
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = SparseTypeSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+class BuildTypeViewSet(viewsets.ModelViewSet):
+    queryset = PatchType.objects.all()
+    serializer_class = SparseTypeSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return PatchType.objects.filter(user=user, engine__id=ENGINE_BUILD)
 
     def list(self, request):
         queryset = self.get_queryset()

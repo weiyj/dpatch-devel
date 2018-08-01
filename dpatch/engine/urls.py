@@ -23,7 +23,7 @@ from rest_framework.routers import DefaultRouter
 from django.conf.urls import url
 
 from .views import PatchEngineViewSet, PatchTypeViewSet
-from .views import IncludeTypeViewSet, SparseTypeViewSet, CoccinelleTypeViewSet
+from .views import IncludeTypeViewSet, SparseTypeViewSet, BuildTypeViewSet, CoccinelleTypeViewSet
 from .views import CoccinelleFileExportViewSet, CoccinelleFileView
 
 router = DefaultRouter()
@@ -31,6 +31,7 @@ router.register(r'engine/engines', PatchEngineViewSet)
 router.register(r'engine/types', PatchTypeViewSet)
 router.register(r'engine/includes', IncludeTypeViewSet)
 router.register(r'engine/sparses', SparseTypeViewSet)
+router.register(r'engine/builds', BuildTypeViewSet)
 router.register(r'engine/coccinelles', CoccinelleTypeViewSet)
 router.register(r'engine/coccinelle/export', CoccinelleFileExportViewSet)
 

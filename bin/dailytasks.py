@@ -26,11 +26,14 @@ import django
 import re
 import datetime
 import json
+import thread
+import threading
 
 django.setup()
 
 from time import localtime, strftime
 from django.db.models import F
+from django.contrib.auth.models import User
 
 from dpatch.taskqueue.models import ScanTaskQueue, StatusTaskQueue
 from dpatch.patch.models import Patch
@@ -41,6 +44,7 @@ from dpatch.core.checkinclude import CheckIncludeEngine
 from dpatch.core.checkrelease import CheckReleaseEngine
 from dpatch.core.checkversion import CheckVersionEngine
 from dpatch.core.checksparse import CheckSparseEngine
+from dpatch.core.checkbuild import CheckBuildEngine
 from dpatch.core.checkcoccinelle import CheckCocciPatchEngine
 from dpatch.core.checkcoccinelle import CheckCocciReportEngine
 from dpatch.core.patchformater import PatchFormater
@@ -262,11 +266,11 @@ def check_report(task, detector):
 
     return True
 
-def do_task_patch():
+def do_task_patch(user):
     # remove finished task first
-    ScanTaskQueue.objects.filter(status=2).delete()
+    ScanTaskQueue.objects.filter(status=2, type__user=user).delete()
 
-    tasks = ScanTaskQueue.objects.filter(status=0).order_by('id')[:20]
+    tasks = ScanTaskQueue.objects.filter(status=0, type__user=user).order_by('id')[:20]
     for task in tasks:
         if task.type.engine.status is False or task.type.status is False:
             task.status = 2
@@ -297,6 +301,9 @@ def do_task_patch():
                 result = check_patch(task, detector)
         elif task.type.engine.name == 'checksparse':
             detector = CheckSparseEngine(repodir, repobuid)
+            result = check_patch(task, detector)
+        elif task.type.engine.name == 'checkbuild':
+            detector = CheckBuildEngine(repodir, repobuid)
             result = check_patch(task, detector)
         elif task.type.engine.name == 'checkcoccinelle':
             if task.type.reportonly is False:
@@ -346,7 +353,10 @@ def do_check_patch_applied(patch):
             continue
 
         rtitle = line.split('|')[1]
-        if line.upper().find(ptitle.upper()) == -1 and ptitle.upper().find(rtitle.upper()) == -1:
+        try:
+            if line.upper().find(ptitle.upper()) == -1 and ptitle.upper().find(rtitle.upper()) == -1:
+                continue
+        except:
             continue
 
         commit = line.split('|')[0]
@@ -415,6 +425,9 @@ def _do_check_patch_fixed(repodir, repobuid, patch):
     elif etype.engine.name == 'checksparse':
         detector = CheckSparseEngine(repodir, repobuid)
         return check_patch_status(patch, detector)
+    elif etype.engine.name == 'checkbuild':
+        detector = CheckBuildEngine(repodir, repobuid)
+        return check_patch_status(patch, detector)
     elif etype.engine.name == 'checkcoccinelle':
         if etype.reportonly is False:
             detector = CheckCocciPatchEngine(repodir, etype, repobuid)
@@ -472,9 +485,9 @@ def do_check_patch_changes(patch):
 
     return False
 
-def do_task_status():
+def do_task_status(user):
     # remove finished task first
-    StatusTaskQueue.objects.filter(status=2).delete()
+    StatusTaskQueue.objects.filter(status=2, patch__type__user=user).delete()
 
     IGNORES = [
         Patch.PATCH_STATUS_MERGED,
@@ -486,7 +499,7 @@ def do_task_status():
         Patch.PATCH_STATUS_REJECTED
     ]
 
-    tasks = StatusTaskQueue.objects.filter(status=0).order_by('id')[:20]
+    tasks = StatusTaskQueue.objects.filter(status=0, patch__type__user=user).order_by('id')[:20]
     #for task in tasks:
     #    task.status = 1
     #    task.save()
@@ -554,8 +567,8 @@ def should_build_module(patch):
         return True
     return False
 
-def do_task_build():
-    patchs = Patch.objects.filter(status=Patch.PATCH_STATUS_PATCH, build=0)[:5]
+def do_task_build(user):
+    patchs = Patch.objects.filter(status=Patch.PATCH_STATUS_PATCH, build=0, type__user=user)[:5]
 
     for patch in patchs:
         buildlog = ''
@@ -746,10 +759,56 @@ def do_pending_task_reset():
     # reset status tasks with status 1 to 0
     StatusTaskQueue.objects.filter(status=1).update(status=0)
 
+def do_dailytask_by_user(user):
+    while True:
+        count = 0
+        fuzzcnt = 0
+
+        try:
+            INFO("start patch task %s" % user.username)
+            count += do_task_patch(user)
+            INFO("end patch task %s" % user.username)
+
+            INFO("start status task %s" % user.username)
+            count += do_task_status(user)
+            INFO("end status task %s" % user.username)
+
+            INFO("start build task %s" % user.username)
+            count += do_task_build(user)
+            INFO("end build task %s" % user.username)
+        except:
+            pass
+
+        # sleep for next check
+        if count == 0:
+            fuzzcnt = fuzzcnt + 1
+            if fuzzcnt > 30:
+                fuzzcnt = 1
+            time.sleep(60 * fuzzcnt)
+        else:
+            fuzzcnt = 0
+
 def main(args):
     # task remain in running state when system reboot or process crash
     do_pending_task_reset()
 
+    tasks = []
+    for user in User.objects.all():
+        t = threading.Thread(target=do_dailytask_by_user, args=(user,))
+        #thread.start_new_thread(do_dailytask_by_user, (user,))
+        tasks.append(t)
+        t.start()
+
+    for t in tasks:
+    #threading.enumerate():
+        print "wait ..."
+        #if t is main_thread:
+        #    continue
+        t.join()
+
+    return -1
+
+    '''
     while True:
         count = 0
         fuzzcnt = 0
@@ -774,6 +833,7 @@ def main(args):
             time.sleep(60 * fuzzcnt)
         else:
             fuzzcnt = 0
+    '''
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
