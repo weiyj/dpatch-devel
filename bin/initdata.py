@@ -38,14 +38,28 @@ def usage(prog):
 def do_init_repository(user):
     REPOSITORIES = [{
         'name': 'linux.git',
-        'url': 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git',
+        'url': 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git',
+        'status': True,
+        'build': True,
+        'type': Repository.KERNEL,
+        'excludes': "[\"^Documentation/*\", \"^scripts/*\", \"^tools/\", \"^net/*\", \"^drivers/net/*\"]"
+    }, {   
+        'name': 'linux-next.git',
+        'url': 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git',
+        'status': True,
+        'build': True,
+        'type': Repository.KERNEL,
+        'excludes': "[\"^Documentation/*\", \"^scripts/*\", \"^tools/\", \"^net/*\", \"^drivers/net/*\"]"
+    }, {   
+        'name': 'net.git',
+        'url': 'https://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git',
         'status': True,
         'build': True,
         'type': Repository.KERNEL,
         'excludes': "[\"^Documentation/*\", \"^scripts/*\", \"^tools/\"]"
     }, {   
-        'name': 'linux-next.git',
-        'url': 'git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git',
+        'name': 'net-next.git',
+        'url': 'https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git',
         'status': True,
         'build': True,
         'type': Repository.KERNEL,
@@ -71,7 +85,7 @@ def do_init_repository(user):
         repo = Repository(name = srepo["name"], url = srepo["url"],
                           status = srepo["status"], build = srepo["build"],
                           type = srepo["type"], excludes= srepo["excludes"],
-                          username = username, email = email)
+                          username = username, email = email, user = user)
         repo.save()
 
 def do_init_engine_type(user):
