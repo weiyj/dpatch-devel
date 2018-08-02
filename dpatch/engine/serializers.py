@@ -87,6 +87,8 @@ class IncludeTypeSerializer(serializers.ModelSerializer):
             'engine',
             'title',
             'description',
+            'bugfix',
+            'reportonly',
             'includes',
             'excludes',
             'totalfile',
@@ -112,6 +114,35 @@ class SparseTypeSerializer(serializers.ModelSerializer):
             'engine',
             'title',
             'description',
+            'bugfix',
+            'reportonly',
+            'includes',
+            'excludes',
+            'totalfile',
+            'totaltime',
+            'status'
+        )
+
+        read_only_fields = (
+            'id',
+            'totalfile',
+            'totaltime',
+        )
+
+class BuildTypeSerializer(serializers.ModelSerializer):
+    engine = serializers.ReadOnlyField(source="engine.name")
+
+    class Meta:
+        model = PatchType
+
+        fields = (
+            'id',
+            'name',
+            'engine',
+            'title',
+            'description',
+            'bugfix',
+            'reportonly',
             'includes',
             'excludes',
             'totalfile',

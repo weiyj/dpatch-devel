@@ -35,7 +35,8 @@ from dpatch.core.cocciparser import CocciParser
 from dpatch.core.coccikernelparser import CocciKernelParser
 
 from .serializers import PatchEngineSerializer, PatchTypeSerializer
-from .serializers import IncludeTypeSerializer, SparseTypeSerializer, CoccinelleTypeSerializer
+from .serializers import IncludeTypeSerializer, SparseTypeSerializer
+from .serializers import BuildTypeSerializer, CoccinelleTypeSerializer
 from .models import PatchEngine, PatchType
 
 ENGINE_INCLUDE = 1
@@ -168,7 +169,7 @@ class SparseTypeViewSet(viewsets.ModelViewSet):
 
 class BuildTypeViewSet(viewsets.ModelViewSet):
     queryset = PatchType.objects.all()
-    serializer_class = SparseTypeSerializer
+    serializer_class = BuildTypeSerializer
 
     def get_queryset(self):
         user = self.request.user

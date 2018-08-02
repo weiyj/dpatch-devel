@@ -44,8 +44,13 @@ class CheckBuildEngine(PatchEngine):
         if shelllog.returncode != 0 and len(shellOut) > 0:
             self.warning(shellOut)
 
-        lines = shellOut.split("\n")
-        lines = lines[0:-1]
+        lines = []
+        for line in shellOut.split("\n")[0:-1]:
+            line = line.replace("\xe2\x80\x98", "'").replace("\xe2\x80\x99", "'")
+            lines.append(line)
+            
+        #lines = shellOut.split("\n")
+        #lines = lines[0:-1]
 
         return lines
 
@@ -63,7 +68,7 @@ class CheckBuildEngine(PatchEngine):
 
     def _get_patch_title(self):
         _cnt = {'total': 0, 'unused': 0}
-        title = 'remove set but not used variable'
+        title = "remove set but not used variable '{{variable}}'"
         _dubious_type = []
         for line in self._diff:
             if self._is_unused_but_set_variable(line): 
@@ -170,12 +175,14 @@ class CheckBuildEngine(PatchEngine):
         except:
             return []
 
+        _nrs = []
         if lines[0].find(',') != -1:
             self._execute_shell("sed -i '%ds/ %s, / /' %s" % (_nr, _sym, self._get_build_path()))
             self._execute_shell("sed -i '%ds/, %s / /' %s" % (_nr, _sym, self._get_build_path()))
             self._execute_shell("sed -i '%ds/, %s;/;/' %s" % (_nr, _sym, self._get_build_path()))
+        else:
+            _nrs.append(_nr)
 
-        _nrs = []
         for oline in lines[1:]:
             _nr = _nr + 1
             if re.match('\s+%s\s*=' % _sym, oline):
