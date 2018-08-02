@@ -291,16 +291,16 @@ define(function(require, exports, module) {
                 if (!doc)
                     return;
 
-                var eid = doc.meta.eid;
-                
-                if (eid == 1)
+                if (doc.title == 'checkinclude')
                 	updateIncludeTypeList(doc);
-                else if (eid == 2)
+                else if (doc.title == 'checksparse')
                 	updateSparseTypeList(doc);
-                else if (eid == 4)
+                else if (doc.title == 'checkbuild')
                 	updateBuildTypeList(doc);
-		else
+                else if (doc.title == 'checkcoccinelle')
                 	updateCocciTypeList(doc);
+                else
+                       updateIncludeTypeList(doc);
             }
 
             function changePatchReport() {

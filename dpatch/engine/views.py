@@ -39,10 +39,10 @@ from .serializers import IncludeTypeSerializer, SparseTypeSerializer
 from .serializers import BuildTypeSerializer, CoccinelleTypeSerializer
 from .models import PatchEngine, PatchType
 
-ENGINE_INCLUDE = 1
-ENGINE_SPARSE = 2
-ENGINE_COCCINELLE = 3
-ENGINE_BUILD = 4
+ENGINE_INCLUDE = "checkinclude"
+ENGINE_SPARSE = "checksparse"
+ENGINE_COCCINELLE = "checkcoccinelle"
+ENGINE_BUILD = "checkbuild"
 
 class PatchEngineViewSet(viewsets.ModelViewSet):
     queryset = PatchEngine.objects.all()
@@ -147,7 +147,7 @@ class IncludeTypeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return PatchType.objects.filter(user=user, engine__id=ENGINE_INCLUDE)
+        return PatchType.objects.filter(user=user, engine__name=ENGINE_INCLUDE)
 
     def list(self, request):
         queryset = self.get_queryset()
@@ -160,7 +160,7 @@ class SparseTypeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return PatchType.objects.filter(user=user, engine__id=ENGINE_SPARSE)
+        return PatchType.objects.filter(user=user, engine__name=ENGINE_SPARSE)
 
     def list(self, request):
         queryset = self.get_queryset()
@@ -173,7 +173,7 @@ class BuildTypeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return PatchType.objects.filter(user=user, engine__id=ENGINE_BUILD)
+        return PatchType.objects.filter(user=user, engine__name=ENGINE_BUILD)
 
     def list(self, request):
         queryset = self.get_queryset()
@@ -186,7 +186,7 @@ class CoccinelleTypeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return PatchType.objects.filter(user=user, engine__id=ENGINE_COCCINELLE)
+        return PatchType.objects.filter(user=user, engine__name=ENGINE_COCCINELLE)
 
     def list(self, request):
         queryset = self.get_queryset()
